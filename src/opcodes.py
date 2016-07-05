@@ -12,6 +12,22 @@ def tay(registers, operand):
     registers.y_index = registers.accumulator
     registers.set_NZ(registers.y_index)
 
+def txa(registers, operand):
+    registers.accumulator = registers.x_index
+    registers.set_NZ(registers.accumulator)
+
+def tya(registers, operand):
+    registers.accumulator = registers.y_index
+    registers.set_NZ(registers.accumulator)
+
+def tsx(registers, operand):
+    registers.x_index = registers.sp
+    registers.set_NZ(registers.x_index)
+
+def txs(registers, operand):
+    registers.sp = registers.x_index
+    registers.set_NZ(registers.sp)
+
 class OpCode(object):
 
     opcode_table = [
@@ -56,7 +72,11 @@ class OpCode(object):
 
         "nop": nop,
         "tax": tax,
-        "tay": tay
+        "tay": tay,
+        "txa": txa,
+        "tya": tya,
+        "tsx": tsx,
+        "txs": txs
     }
 
     def __init__(self):
