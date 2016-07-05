@@ -82,5 +82,6 @@ class AddressingModes(object):
     @staticmethod
     def handle(opcode, registers, memory_controller):
 
-        # should return effective address for instruction (if applicable)
+        # should value fetched according to mode (if applicable)
+        # also updates registers according to mode
         return AddressingModes.dispatch_table[(opcode & 0xf0) >> 4][opcode & 0xf](registers, memory_controller)

@@ -4,6 +4,14 @@ from addressing_modes import AddressingModes
 def nop(registers, operand):
     pass
 
+def tax(registers, operand):
+    registers.x_index = registers.accumulator
+    registers.set_NZ(registers.x_index)
+
+def tay(registers, operand):
+    registers.y_index = registers.accumulator
+    registers.set_NZ(registers.y_index)
+
 class OpCode(object):
 
     opcode_table = [
@@ -46,7 +54,9 @@ class OpCode(object):
     ]
     dispatch_table = {
 
-        "nop": nop
+        "nop": nop,
+        "tax": tax,
+        "tay": tay
     }
 
     def __init__(self):
