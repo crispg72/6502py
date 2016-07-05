@@ -107,5 +107,141 @@ class OpCodeTests(unittest.TestCase):
             self.assertFalse(registers.negative_flag) # default sp should be $fd
             self.assertFalse(registers.zero_flag)
 
+    def test_execute_inx_0_to_1(self):
+
+        registers = Registers() 
+        dummy_value = 0x0
+        registers.x_index = dummy_value
+
+        with patch.object(MemoryController, 'read', return_value = None) as mock_memory_controller:
+            count = OpCode.execute(0xE8, registers, mock_memory_controller)
+            self.assertEqual(count, 2)
+            mock_memory_controller.assert_not_called()
+            self.assertEqual(registers.x_index, dummy_value + 1)
+            self.assertFalse(registers.negative_flag)
+            self.assertFalse(registers.zero_flag)
+
+    def test_execute_inx_127_to_128(self):
+
+        registers = Registers() 
+        dummy_value = 0x7f
+        registers.x_index = dummy_value
+        
+        OpCode.execute(0xE8, registers, None)
+        self.assertEqual(registers.x_index, dummy_value + 1)
+        self.assertTrue(registers.negative_flag)
+        self.assertFalse(registers.zero_flag)
+
+    def test_execute_inx_255_to_0(self):
+
+        registers = Registers() 
+        registers.x_index = 0xff
+
+        OpCode.execute(0xE8, registers, None)
+        self.assertEqual(registers.x_index, 0)
+        self.assertFalse(registers.negative_flag)
+        self.assertTrue(registers.zero_flag)
+
+    def test_execute_iny_0_to_1(self):
+
+        registers = Registers() 
+        dummy_value = 0x0
+        registers.y_index = dummy_value
+
+        with patch.object(MemoryController, 'read', return_value = None) as mock_memory_controller:
+            count = OpCode.execute(0xC8, registers, mock_memory_controller)
+            self.assertEqual(count, 2)
+            mock_memory_controller.assert_not_called()
+            self.assertEqual(registers.y_index, dummy_value + 1)
+            self.assertFalse(registers.negative_flag)
+            self.assertFalse(registers.zero_flag)
+
+    def test_execute_iny_127_to_128(self):
+
+        registers = Registers() 
+        dummy_value = 0x7f
+        registers.y_index = dummy_value
+        
+        OpCode.execute(0xC8, registers, None)
+        self.assertEqual(registers.y_index, dummy_value + 1)
+        self.assertTrue(registers.negative_flag)
+        self.assertFalse(registers.zero_flag)
+
+    def test_execute_iny_255_to_0(self):
+
+        registers = Registers() 
+        registers.y_index = 0xff
+
+        OpCode.execute(0xC8, registers, None)
+        self.assertEqual(registers.y_index, 0)
+        self.assertFalse(registers.negative_flag)
+        self.assertTrue(registers.zero_flag)
+
+    def test_execute_dex_1_to_0(self):
+
+        registers = Registers() 
+        registers.x_index = 1
+
+        with patch.object(MemoryController, 'read', return_value = None) as mock_memory_controller:
+            count = OpCode.execute(0xCA, registers, mock_memory_controller)
+            self.assertEqual(count, 2)
+            mock_memory_controller.assert_not_called()
+            self.assertEqual(registers.x_index, 0)
+            self.assertFalse(registers.negative_flag)
+            self.assertTrue(registers.zero_flag)
+
+    def test_execute_dex_128_to_127(self):
+
+        registers = Registers() 
+        registers.x_index = 0x80
+        
+        OpCode.execute(0xCA, registers, None)
+        self.assertEqual(registers.x_index, 0x7f)
+        self.assertFalse(registers.negative_flag)
+        self.assertFalse(registers.zero_flag)
+
+    def test_execute_dex_0_to_minus1(self):
+
+        registers = Registers() 
+        registers.x_index = 0
+
+        OpCode.execute(0xCA, registers, None)
+        self.assertEqual(registers.x_index, 255)
+        self.assertTrue(registers.negative_flag)
+        self.assertFalse(registers.zero_flag)
+
+    def test_execute_dey_1_to_0(self):
+
+        registers = Registers() 
+        registers.y_index = 1
+
+        with patch.object(MemoryController, 'read', return_value = None) as mock_memory_controller:
+            count = OpCode.execute(0x88, registers, mock_memory_controller)
+            self.assertEqual(count, 2)
+            mock_memory_controller.assert_not_called()
+            self.assertEqual(registers.y_index, 0)
+            self.assertFalse(registers.negative_flag)
+            self.assertTrue(registers.zero_flag)
+
+    def test_execute_dey_128_to_127(self):
+
+        registers = Registers() 
+        registers.y_index = 0x80
+        
+        OpCode.execute(0x88, registers, None)
+        self.assertEqual(registers.y_index, 0x7f)
+        self.assertFalse(registers.negative_flag)
+        self.assertFalse(registers.zero_flag)
+
+    def test_execute_dey_0_to_minus1(self):
+
+        registers = Registers() 
+        registers.y_index = 0
+
+        OpCode.execute(0x88, registers, None)
+        self.assertEqual(registers.y_index, 255)
+        self.assertTrue(registers.negative_flag)
+        self.assertFalse(registers.zero_flag)
+
 if __name__ == '__main__':
     unittest.main()

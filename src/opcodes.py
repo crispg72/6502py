@@ -28,6 +28,34 @@ def txs(registers, operand):
     registers.sp = registers.x_index
     registers.set_NZ(registers.sp)
 
+def inx(registers, operand):
+    registers.x_index += 1
+    if registers.x_index > 255:
+        registers.x_index = 0
+
+    registers.set_NZ(registers.x_index)
+
+def iny(registers, operand):
+    registers.y_index += 1
+    if registers.y_index > 255:
+        registers.y_index = 0
+
+    registers.set_NZ(registers.y_index) 
+
+def dex(registers, operand):
+    registers.x_index -= 1
+    if registers.x_index < 0:
+        registers.x_index = 255
+
+    registers.set_NZ(registers.x_index)
+
+def dey(registers, operand):
+    registers.y_index -= 1
+    if registers.y_index < 0:
+        registers.y_index = 255
+
+    registers.set_NZ(registers.y_index) 
+
 class OpCode(object):
 
     opcode_table = [
@@ -76,7 +104,11 @@ class OpCode(object):
         "txa": txa,
         "tya": tya,
         "tsx": tsx,
-        "txs": txs
+        "txs": txs,
+        "inx": inx,
+        "iny": iny,
+        "dex": dex,
+        "dey": dey
     }
 
     def __init__(self):
