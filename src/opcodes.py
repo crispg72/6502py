@@ -56,6 +56,10 @@ def dey(registers, operand):
 
     registers.set_NZ(registers.y_index) 
 
+def lda(registers, operand):
+    registers.accumulator = operand
+    registers.set_NZ(registers.accumulator) 
+
 class OpCode(object):
 
     opcode_table = [
@@ -96,6 +100,9 @@ class OpCode(object):
            [2,    6,    2,    8,    3,    3,    5,    5,    2,    2,    2,    2,    4,    4,    6,    6],  # E
            [2,    5,    2,    8,    4,    4,    6,    6,    2,    4,    2,    7,    4,    4,    7,    7]   # F
     ]
+
+    # not strictly necessary, leaving it in for now since I may
+    # store some extra information in here per instruction
     dispatch_table = {
 
         "nop": nop,
@@ -108,7 +115,8 @@ class OpCode(object):
         "inx": inx,
         "iny": iny,
         "dex": dex,
-        "dey": dey
+        "dey": dey,
+        "lda": lda
     }
 
     def __init__(self):

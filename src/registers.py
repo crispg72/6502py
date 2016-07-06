@@ -13,8 +13,13 @@ class Registers(object):
         self.sp = 0xFD
         self.pc = 0
 
-        self.negative_flag = False
+        self.carry_flag = False
         self.zero_flag = False
+        self.interrupt_flag = True
+        self.decimal_mode_flag = False
+        self.sw_interrupt = False
+        self.overflow_flag = False
+        self.negative_flag = False
 
     def set_NZ(self, value):
 
