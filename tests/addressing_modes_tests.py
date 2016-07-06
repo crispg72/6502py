@@ -50,5 +50,23 @@ class AdressingModesTests(unittest.TestCase):
             self.assertEqual(registers.pc, 2)
             self.assertEqual(value, 1)
 
+    def test_absolute_calls_read_correctly(self):
+
+        registers = Registers()
+        registers.pc = 1 #fake loading of opcode
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xa5 0x22 and value at [0x0022] = 1
+            mock_memory_controller.read.side_effect = [0x22, 0x23, 1]
+            # 'JMP' 0x4c opcode is absolute address mode
+            value = AddressingModes.handle(0x4C, registers, mock_memory_controller)
+            self.assertEqual(mock_memory_controller.read.call_count, 3)
+            self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
+            self.assertEqual(mock_memory_controller.read.call_args_list[1], unittest.mock.call(2))
+            self.assertEqual(mock_memory_controller.read.call_args_list[2], unittest.mock.call(0x2322))
+            self.assertEqual(registers.pc, 3)
+            self.assertEqual(value, 1)
+
 if __name__ == '__main__':
     unittest.main()

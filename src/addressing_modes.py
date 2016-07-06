@@ -38,7 +38,11 @@ def zpy(registers, memory_controller):
     raise NotImplementedError()
 
 def abso(registers, memory_controller):
-    raise NotImplementedError()
+    low_address = memory_controller.read(registers.pc)
+    registers.pc += 1
+    high_address = memory_controller.read(registers.pc)
+    registers.pc +=1
+    return memory_controller.read((high_address << 8) + low_address)
 
 def absx(registers, memory_controller):
     raise NotImplementedError()
