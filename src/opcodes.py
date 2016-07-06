@@ -60,6 +60,14 @@ def lda(registers, operand):
     registers.accumulator = operand
     registers.set_NZ(registers.accumulator) 
 
+def ldx(registers, operand):
+    registers.x_index = operand
+    registers.set_NZ(registers.x_index) 
+
+def ldy(registers, operand):
+    registers.y_index = operand
+    registers.set_NZ(registers.y_index) 
+
 class OpCode(object):
 
     opcode_table = [
@@ -116,7 +124,9 @@ class OpCode(object):
         "iny": iny,
         "dex": dex,
         "dey": dey,
-        "lda": lda
+        "lda": lda,
+        "ldx": ldx,
+        "ldy": ldy
     }
 
     def __init__(self):

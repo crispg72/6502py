@@ -33,5 +33,22 @@ class AdressingModesTests(unittest.TestCase):
             self.assertEqual(registers.pc, 1)
             self.assertEqual(value, 0x22)
 
+    def test_zero_page_calls_read_correctly(self):
+
+        registers = Registers()
+        registers.pc = 1 #fake loading of opcode
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xa5 0x22 and value at [0x0022] = 1
+            mock_memory_controller.read.side_effect = [0x22, 1]
+            # 'LDA' 0xA5 opcode is zero page address mode
+            value = AddressingModes.handle(0xA5, registers, mock_memory_controller)
+            self.assertEqual(mock_memory_controller.read.call_count, 2)
+            self.assertEqual(mock_memory_controller.read.call_args_list[1], unittest.mock.call(0x22))
+            self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
+            self.assertEqual(registers.pc, 2)
+            self.assertEqual(value, 1)
+
 if __name__ == '__main__':
     unittest.main()

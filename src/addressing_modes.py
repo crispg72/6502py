@@ -27,7 +27,9 @@ def indy(registers, memory_controller):
     raise NotImplementedError()
 
 def zp(registers, memory_controller):
-    raise NotImplementedError()
+    low_address = memory_controller.read(registers.pc)
+    registers.pc += 1
+    return memory_controller.read(low_address)
 
 def zpx(registers, memory_controller):
     raise NotImplementedError()
