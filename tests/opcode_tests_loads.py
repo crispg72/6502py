@@ -296,5 +296,49 @@ class OpCodeTests(unittest.TestCase):
             self.assertFalse(registers.zero_flag)
             self.assertTrue(registers.negative_flag)
 
+    def test_execute_lda_zeropage_x(self):
+
+        registers = Registers()
+        registers.x_index = 3
+        registers.zero_flag = True
+        registers.negative_flag = True  
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xb5 0x21 and value at [0x0024] = 1
+            mock_memory_controller.read.side_effect = [0x21, 1]
+            registers.pc += 1 #need to fake the cpu reading the opcode
+            count = OpCode.execute(0xB5, registers, mock_memory_controller)
+            self.assertEqual(count, 4)
+
+            # these are checked more thoroughly in addressing_modes_tests
+            self.assertEqual(mock_memory_controller.read.call_count, 2)
+            self.assertEqual(registers.pc, 2)
+            self.assertEqual(registers.accumulator, 1)
+            self.assertFalse(registers.zero_flag)
+            self.assertFalse(registers.negative_flag)
+
+    def test_execute_ldx_zeropage_y(self):
+
+        registers = Registers()
+        registers.y_index = 5
+        registers.zero_flag = True
+        registers.negative_flag = True  
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xb6 0xff and value at [0x04] = 2
+            mock_memory_controller.read.side_effect = [0xff, 2]
+            registers.pc += 1 #need to fake the cpu reading the opcode
+            count = OpCode.execute(0xB6, registers, mock_memory_controller)
+            self.assertEqual(count, 4)
+
+            # these are checked more thoroughly in addressing_modes_tests
+            self.assertEqual(mock_memory_controller.read.call_count, 2)
+            self.assertEqual(registers.pc, 2)
+            self.assertEqual(registers.x_index, 2)
+            self.assertFalse(registers.zero_flag)
+            self.assertFalse(registers.negative_flag)
+
 if __name__ == '__main__':
     unittest.main()

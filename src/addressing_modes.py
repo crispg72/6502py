@@ -32,10 +32,16 @@ def zp(registers, memory_controller):
     return memory_controller.read(low_address)
 
 def zpx(registers, memory_controller):
-    raise NotImplementedError()
+    address = memory_controller.read(registers.pc)
+    registers.pc += 1
+    address += registers.x_index
+    return memory_controller.read(address & 0xff)
 
 def zpy(registers, memory_controller):
-    raise NotImplementedError()
+    address = memory_controller.read(registers.pc)
+    registers.pc += 1
+    address += registers.y_index
+    return memory_controller.read(address & 0xff)
 
 def abso(registers, memory_controller):
     low_address = memory_controller.read(registers.pc)

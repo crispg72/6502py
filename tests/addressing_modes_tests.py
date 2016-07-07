@@ -68,5 +68,77 @@ class AdressingModesTests(unittest.TestCase):
             self.assertEqual(registers.pc, 3)
             self.assertEqual(value, 1)
 
+    def test_zero_page_x_index_calls_read_correctly(self):
+
+        registers = Registers()
+        registers.pc = 1 #fake loading of opcode
+        registers.x_index = 3
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xB5 0x03 and value at [0x06] = 1
+            mock_memory_controller.read.side_effect = [3, 1]
+            # 'LDA' 0xB5 opcode is zero page x indexed address mode
+            value = AddressingModes.handle(0xB5, registers, mock_memory_controller)
+            self.assertEqual(mock_memory_controller.read.call_count, 2)
+            self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
+            self.assertEqual(mock_memory_controller.read.call_args_list[1], unittest.mock.call(6))
+            self.assertEqual(registers.pc, 2)
+            self.assertEqual(value, 1)
+
+    def test_zero_page_x_index_deals_with_wraparound(self):
+
+        registers = Registers()
+        registers.pc = 1 #fake loading of opcode
+        registers.x_index = 0xff
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xB5 0x03 and value at [0x02] = 1
+            mock_memory_controller.read.side_effect = [3, 1]
+            # 'LDA' 0xB5 opcode is zero page x indexed address mode
+            value = AddressingModes.handle(0xB5, registers, mock_memory_controller)
+            self.assertEqual(mock_memory_controller.read.call_count, 2)
+            self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
+            self.assertEqual(mock_memory_controller.read.call_args_list[1], unittest.mock.call(2))
+            self.assertEqual(registers.pc, 2)
+            self.assertEqual(value, 1)
+
+    def test_zero_page_y_index_calls_read_correctly(self):
+
+        registers = Registers()
+        registers.pc = 1 #fake loading of opcode
+        registers.y_index = 3
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xB6 0x03 and value at [0x06] = 1
+            mock_memory_controller.read.side_effect = [3, 1]
+            # 'LDX' 0xB6 opcode is zero page x indexed address mode
+            value = AddressingModes.handle(0xB6, registers, mock_memory_controller)
+            self.assertEqual(mock_memory_controller.read.call_count, 2)
+            self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
+            self.assertEqual(mock_memory_controller.read.call_args_list[1], unittest.mock.call(6))
+            self.assertEqual(registers.pc, 2)
+            self.assertEqual(value, 1)
+
+    def test_zero_page_y_index_deals_with_wraparound(self):
+
+        registers = Registers()
+        registers.pc = 1 #fake loading of opcode
+        registers.y_index = 0xff
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xB6 0x03 and value at [0x02] = 1
+            mock_memory_controller.read.side_effect = [3, 1]
+            # 'LDX 0xB6 opcode is zero page x indexed address mode
+            value = AddressingModes.handle(0xB6, registers, mock_memory_controller)
+            self.assertEqual(mock_memory_controller.read.call_count, 2)
+            self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
+            self.assertEqual(mock_memory_controller.read.call_args_list[1], unittest.mock.call(2))
+            self.assertEqual(registers.pc, 2)
+            self.assertEqual(value, 1)
+
 if __name__ == '__main__':
     unittest.main()
