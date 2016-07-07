@@ -18,7 +18,19 @@ def rel(registers, memory_controller):
     raise NotImplementedError()
 
 def ind(registers, memory_controller):
-    raise NotImplementedError()
+    low_address = memory_controller.read(registers.pc)
+    registers.pc += 1
+    high_address = memory_controller.read(registers.pc)
+    registers.pc +=1
+    
+    low_result = memory_controller.read((high_address << 8) + low_address)
+    # deal with the indirect 'quirk' where it cannot straddle pages
+    if low_address == 0xff:
+        low_address = 0
+    else:
+        low_address += 1
+    high_result = memory_controller.read((high_address << 8) + low_address)
+    return (high_result << 8) + low_result
 
 def indx(registers, memory_controller):
     raise NotImplementedError()
@@ -50,6 +62,14 @@ def abso(registers, memory_controller):
     registers.pc +=1
     return memory_controller.read((high_address << 8) + low_address)
 
+# used by absolute jmp
+def absj(registers, memory_controller):
+    low_address = memory_controller.read(registers.pc)
+    registers.pc += 1
+    high_address = memory_controller.read(registers.pc)
+    registers.pc +=1
+    return (high_address << 8) + low_address
+
 def absx(registers, memory_controller):
     raise NotImplementedError()
 
@@ -77,7 +97,7 @@ class AddressingModes(object):
          [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx, absx, absx, absx], # 1 
          [ abso, indx,  imp, indx,   zp,   zp,   zp,   zp,  imp,  imm,  acc,  imm, abso, abso, abso, abso], # 2 
          [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx, absx, absx, absx], # 3 
-         [  imp, indx,  imp, indx,   zp,   zp,   zp,   zp,  imp,  imm,  acc,  imm, abso, abso, abso, abso], # 4 
+         [  imp, indx,  imp, indx,   zp,   zp,   zp,   zp,  imp,  imm,  acc,  imm, absj, abso, abso, abso], # 4 
          [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx, absx, absx, absx], # 5 
          [  imp, indx,  imp, indx,   zp,   zp,   zp,   zp,  imp,  imm,  acc,  imm,  ind, abso, abso, abso], # 6 
          [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx, absx, absx, absx], # 7 

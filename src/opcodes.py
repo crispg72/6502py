@@ -68,6 +68,9 @@ def ldy(registers, operand):
     registers.y_index = operand
     registers.set_NZ(registers.y_index) 
 
+def jmp(registers, operand):
+    registers.pc = operand
+
 class OpCode(object):
 
     opcode_table = [
@@ -126,7 +129,8 @@ class OpCode(object):
         "dey": dey,
         "lda": lda,
         "ldx": ldx,
-        "ldy": ldy
+        "ldy": ldy,
+        "jmp": jmp
     }
 
     def __init__(self):
