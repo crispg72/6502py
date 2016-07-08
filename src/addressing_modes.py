@@ -15,7 +15,9 @@ def imm(registers, memory_controller):
     return value
 
 def rel(registers, memory_controller):
-    raise NotImplementedError()
+    value = memory_controller.read(registers.pc)
+    registers.pc += 1
+    return value
 
 def ind(registers, memory_controller):
     low_address = memory_controller.read(registers.pc)
@@ -42,7 +44,16 @@ def indx(registers, memory_controller):
     return (high_address << 8) + low_address
 
 def indy(registers, memory_controller):
-    raise NotImplementedError()
+    zp_address = memory_controller.read(registers.pc)
+    registers.pc += 1
+    low_address = memory_controller.read(zp_address)
+    high_address = memory_controller.read((zp_address + 1) & 0xff)
+
+    low_address += registers.y_index
+    if low_address > 255:
+        AddressingModes.cycle_count += 1
+
+    return (high_address << 8) + low_address
 
 def zp(registers, memory_controller):
     low_address = memory_controller.read(registers.pc)
@@ -77,10 +88,28 @@ def absj(registers, memory_controller):
     return (high_address << 8) + low_address
 
 def absx(registers, memory_controller):
-    raise NotImplementedError()
+    low_address = memory_controller.read(registers.pc)
+    registers.pc += 1
+    high_address = memory_controller.read(registers.pc)
+    registers.pc +=1
+    low_address += registers.x_index
+
+    if low_address > 255:
+        AddressingModes.cycle_count += 1
+
+    return (high_address << 8) + low_address
 
 def absy(registers, memory_controller):
-    raise NotImplementedError()
+    low_address = memory_controller.read(registers.pc)
+    registers.pc += 1
+    high_address = memory_controller.read(registers.pc)
+    registers.pc +=1
+    low_address += registers.y_index
+
+    if low_address > 255:
+        AddressingModes.cycle_count += 1
+
+    return (high_address << 8) + low_address
 
 class AddressingModes(object):
 
@@ -116,6 +145,9 @@ class AddressingModes(object):
          [  imm, indx,  imm, indx,   zp,   zp,   zp,   zp,  imp,  imm,  imp,  imm, abso, abso, abso, abso], # E 
          [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx, absx, absx, absx]  # F 
         ]
+
+    # Used for marking extra cycles for crossing page boundary
+    cycle_count = 0
 
     @staticmethod
     def handle(opcode, registers, memory_controller):

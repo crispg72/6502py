@@ -64,6 +64,20 @@ def ldaix(registers, operand, memory_controller):
     registers.accumulator = memory_controller.read(operand)
     registers.set_NZ(registers.accumulator) 
 
+def ldaa(registers, operand, memory_controller):
+    registers.accumulator = memory_controller.read(operand)
+    registers.set_NZ(registers.accumulator) 
+
+# ldx absolute Y
+def ldxa(registers, operand, memory_controller):
+    registers.x_index = memory_controller.read(operand)
+    registers.set_NZ(registers.x_index) 
+
+# ldy absolute X
+def ldya(registers, operand, memory_controller):
+    registers.y_index = memory_controller.read(operand)
+    registers.set_NZ(registers.y_index) 
+
 def ldx(registers, operand, memory_controller):
     registers.x_index = operand
     registers.set_NZ(registers.x_index) 
@@ -90,7 +104,7 @@ class OpCode(object):
         ["nop", "sta", "nop", "sax", "sty", "sta", "stx", "sax", "dey", "nop", "txa", "nop", "sty", "sta", "stx", "sax"],  # 8
         ["bcc", "sta", "nop", "nop", "sty", "sta", "stx", "sax", "tya", "sta", "txs", "nop", "nop", "sta", "nop", "nop"],  # 9
         ["ldy", "ldaix", "ldx", "lax", "ldy", "lda", "ldx", "lax", "tay", "lda", "tax", "nop", "ldy", "lda", "ldx", "lax"],  # A
-        ["bcs", "lda", "nop", "lax", "ldy", "lda", "ldx", "lax", "clv", "lda", "tsx", "lax", "ldy", "lda", "ldx", "lax"],  # B
+        ["bcs", "ldaa", "nop", "lax", "ldy", "lda", "ldx", "lax", "clv", "ldaa", "tsx", "lax", "ldya", "ldaa", "ldxa", "lax"],  # B
         ["cpy", "cmp", "nop", "dcp", "cpy", "cmp", "dec", "dcp", "iny", "cmp", "dex", "nop", "cpy", "cmp", "dec", "dcp"],  # C
         ["bne", "cmp", "nop", "dcp", "nop", "cmp", "dec", "dcp", "cld", "cmp", "nop", "dcp", "nop", "cmp", "dec", "dcp"],  # D
         ["cpx", "sbc", "nop", "isb", "cpx", "sbc", "inc", "isb", "inx", "sbc", "nop", "sbc", "cpx", "sbc", "inc", "isb"],  # E
@@ -133,6 +147,9 @@ class OpCode(object):
         "dey": dey,
         "lda": lda,
         "ldaix": ldaix,
+        "ldaa": ldaa,
+        "ldxa": ldxa,
+        "ldya": ldya,
         "ldx": ldx,
         "ldy": ldy,
         "jmp": jmp
@@ -147,7 +164,8 @@ class OpCode(object):
         low_nibble = opcode & 0xf
         high_nibble = (opcode & 0xf0) >> 4
 
+        AddressingModes.cycle_count = OpCode.cycle_counts[high_nibble][low_nibble]
+
         operand = AddressingModes.handle(opcode, registers, memory_controller)
         OpCode.dispatch_table[OpCode.opcode_table[high_nibble][low_nibble]](registers, operand, memory_controller)
-
-        return OpCode.cycle_counts[high_nibble][low_nibble]
+        return AddressingModes.cycle_count

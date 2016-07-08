@@ -33,6 +33,19 @@ class AdressingModesTests(unittest.TestCase):
             self.assertEqual(registers.pc, 1)
             self.assertEqual(value, 0x22)
 
+    def test_relative_loads_next_value_from_pc(self):
+
+        registers = Registers()
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            mock_memory_controller.read.return_value = 0x22
+            # 'BPL' 0x10 opcode is relative address mode
+            value = AddressingModes.handle(0x10, registers, mock_memory_controller)
+            mock_memory_controller.read.assert_called_with(0)
+            self.assertEqual(registers.pc, 1)
+            self.assertEqual(value, 0x22)
+
     def test_zero_page_calls_read_correctly(self):
 
         registers = Registers()
@@ -233,6 +246,149 @@ class AdressingModesTests(unittest.TestCase):
             self.assertEqual(mock_memory_controller.read.call_args_list[2], unittest.mock.call(0))
             self.assertEqual(registers.pc, 2)
             self.assertEqual(value, 0x1234)
+
+    def test_absolute_x(self):
+
+        registers = Registers()
+        registers.pc = 1 #fake loading of opcode
+        registers.x_index = 0x3
+        AddressingModes.cycle_count = 0
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xBD 0xc000 
+            mock_memory_controller.read.side_effect = [0, 0xc0]
+            # 'LDA' 0xBD opcode uses indirect addressing
+            value = AddressingModes.handle(0xBD, registers, mock_memory_controller)
+            self.assertEqual(mock_memory_controller.read.call_count, 2)
+            self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
+            self.assertEqual(mock_memory_controller.read.call_args_list[1], unittest.mock.call(2))
+            self.assertEqual(registers.pc, 3)
+            self.assertEqual(value, 0xc003)
+            self.assertEqual(AddressingModes.cycle_count, 0)
+
+    def test_absolute_x_page_boundary(self):
+
+        registers = Registers()
+        registers.pc = 1 #fake loading of opcode
+        registers.x_index = 0x3
+        AddressingModes.cycle_count = 0
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xBD 0xc000 
+            mock_memory_controller.read.side_effect = [0xfe, 0xc0]
+            # 'LDA' 0xBD opcode uses indirect addressing
+            value = AddressingModes.handle(0xBD, registers, mock_memory_controller)
+            self.assertEqual(mock_memory_controller.read.call_count, 2)
+            self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
+            self.assertEqual(mock_memory_controller.read.call_args_list[1], unittest.mock.call(2))
+            self.assertEqual(registers.pc, 3)
+            self.assertEqual(value, 0xc101)
+            self.assertEqual(AddressingModes.cycle_count, 1)
+
+    def test_absolute_y(self):
+
+        registers = Registers()
+        registers.pc = 1 #fake loading of opcode
+        registers.y_index = 0x3
+        AddressingModes.cycle_count = 0
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xB9 0xc000 
+            mock_memory_controller.read.side_effect = [0, 0xc0]
+            # 'LDA' 0xB9 opcode uses indirect addressing
+            value = AddressingModes.handle(0xB9, registers, mock_memory_controller)
+            self.assertEqual(mock_memory_controller.read.call_count, 2)
+            self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
+            self.assertEqual(mock_memory_controller.read.call_args_list[1], unittest.mock.call(2))
+            self.assertEqual(registers.pc, 3)
+            self.assertEqual(value, 0xc003)
+            self.assertEqual(AddressingModes.cycle_count, 0)
+
+    def test_absolute_y_page_boundary(self):
+
+        registers = Registers()
+        registers.pc = 1 #fake loading of opcode
+        registers.y_index = 0x3
+        AddressingModes.cycle_count = 0
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xB9 0xc000 
+            mock_memory_controller.read.side_effect = [0xfe, 0xc0]
+            # 'LDA' 0xB9 opcode uses indirect addressing
+            value = AddressingModes.handle(0xB9, registers, mock_memory_controller)
+            self.assertEqual(mock_memory_controller.read.call_count, 2)
+            self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
+            self.assertEqual(mock_memory_controller.read.call_args_list[1], unittest.mock.call(2))
+            self.assertEqual(registers.pc, 3)
+            self.assertEqual(value, 0xc101)
+            self.assertEqual(AddressingModes.cycle_count, 1)
+
+    def test_indirect_indexed_y(self):
+
+        registers = Registers()
+        registers.pc = 1 #fake loading of opcode
+        registers.y_index = 0x3
+        AddressingModes.cycle_count = 0
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xB1 0x2a  memory at 0x2a = [0x28, 0x40]
+            mock_memory_controller.read.side_effect = [0x2a, 0x28, 0x40]
+            # 'LDA' 0xB9 opcode uses indirect addressing
+            value = AddressingModes.handle(0xB1, registers, mock_memory_controller)
+            self.assertEqual(mock_memory_controller.read.call_count, 3)
+            self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
+            self.assertEqual(mock_memory_controller.read.call_args_list[1], unittest.mock.call(0x2a))
+            self.assertEqual(mock_memory_controller.read.call_args_list[2], unittest.mock.call(0x2b))
+            self.assertEqual(registers.pc, 2)
+            self.assertEqual(value, 0x402b)
+            self.assertEqual(AddressingModes.cycle_count, 0)
+
+    def test_indirect_indexed_y_zp_boundary(self):
+
+        registers = Registers()
+        registers.pc = 1 #fake loading of opcode
+        registers.y_index = 0x3
+        AddressingModes.cycle_count = 0
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xB1 0xff  memory at 0xff = [0x28, 0x40]
+            mock_memory_controller.read.side_effect = [0xff, 0x28, 0x40]
+            # 'LDA' 0xB9 opcode uses indirect addressing
+            value = AddressingModes.handle(0xB1, registers, mock_memory_controller)
+            self.assertEqual(mock_memory_controller.read.call_count, 3)
+            self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
+            self.assertEqual(mock_memory_controller.read.call_args_list[1], unittest.mock.call(0xff))
+            self.assertEqual(mock_memory_controller.read.call_args_list[2], unittest.mock.call(0x00))
+            self.assertEqual(registers.pc, 2)
+            self.assertEqual(value, 0x402b)
+            self.assertEqual(AddressingModes.cycle_count, 0)
+
+    def test_indirect_indexed_y_page_boundary(self):
+
+        registers = Registers()
+        registers.pc = 1 #fake loading of opcode
+        registers.y_index = 0x3
+        AddressingModes.cycle_count = 0
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xB1 0x2a  memory at 0x2a = [0xfe, 0x40]
+            mock_memory_controller.read.side_effect = [0x2a, 0xfe, 0x40]
+            # 'LDA' 0xB9 opcode uses indirect addressing
+            value = AddressingModes.handle(0xB1, registers, mock_memory_controller)
+            self.assertEqual(mock_memory_controller.read.call_count, 3)
+            self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
+            self.assertEqual(mock_memory_controller.read.call_args_list[1], unittest.mock.call(0x2a))
+            self.assertEqual(mock_memory_controller.read.call_args_list[2], unittest.mock.call(0x2b))
+            self.assertEqual(registers.pc, 2)
+            self.assertEqual(value, 0x4101)
+            self.assertEqual(AddressingModes.cycle_count, 1)
 
 if __name__ == '__main__':
     unittest.main()
