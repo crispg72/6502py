@@ -33,7 +33,13 @@ def ind(registers, memory_controller):
     return (high_result << 8) + low_result
 
 def indx(registers, memory_controller):
-    raise NotImplementedError()
+    zp_address =  memory_controller.read(registers.pc)
+    registers.pc += 1
+    zp_address += registers.x_index
+
+    low_address = memory_controller.read(zp_address & 0xff)
+    high_address = memory_controller.read((zp_address + 1) & 0xff)
+    return (high_address << 8) + low_address
 
 def indy(registers, memory_controller):
     raise NotImplementedError()

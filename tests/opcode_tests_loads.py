@@ -340,5 +340,27 @@ class OpCodeTests(unittest.TestCase):
             self.assertFalse(registers.zero_flag)
             self.assertFalse(registers.negative_flag)
 
+    def test_execute_lda_indirect_x(self):
+
+        registers = Registers()
+        registers.x_index = 3
+        registers.zero_flag = True
+        registers.negative_flag = False
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xa1 0x21 and value at [0x0024] = 0x1234, [0x1234] = 0xcc
+            mock_memory_controller.read.side_effect = [0x21, 0x34, 0x12, 0xcc]
+            registers.pc += 1 #need to fake the cpu reading the opcode
+            count = OpCode.execute(0xA1, registers, mock_memory_controller)
+            self.assertEqual(count, 6)
+
+            # these are checked more thoroughly in addressing_modes_tests
+            self.assertEqual(mock_memory_controller.read.call_count, 4)
+            self.assertEqual(registers.pc, 2)
+            self.assertEqual(registers.accumulator, 0xcc)
+            self.assertFalse(registers.zero_flag)
+            self.assertTrue(registers.negative_flag)
+
 if __name__ == '__main__':
     unittest.main()

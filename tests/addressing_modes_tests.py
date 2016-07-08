@@ -177,5 +177,62 @@ class AdressingModesTests(unittest.TestCase):
             self.assertEqual(registers.pc, 3)
             self.assertEqual(value, 0x1234)
 
+    def test_zp_index_indirect_x(self):
+
+        registers = Registers()
+        registers.pc = 1 #fake loading of opcode
+        registers.x_index = 0x3
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xA1 0x03 and value at [0x06] = 0x1234
+            mock_memory_controller.read.side_effect = [3, 0x34, 0x12]
+            # 'LDA' 0xA1 opcode uses indirect addressing
+            value = AddressingModes.handle(0xA1, registers, mock_memory_controller)
+            self.assertEqual(mock_memory_controller.read.call_count, 3)
+            self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
+            self.assertEqual(mock_memory_controller.read.call_args_list[1], unittest.mock.call(6))
+            self.assertEqual(mock_memory_controller.read.call_args_list[2], unittest.mock.call(7))
+            self.assertEqual(registers.pc, 2)
+            self.assertEqual(value, 0x1234)
+
+    def test_zp_index_indirect_x_wraparound_1(self):
+
+        registers = Registers()
+        registers.pc = 1 #fake loading of opcode
+        registers.x_index = 0xff
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xA1 0x03 and value at [0xff] = 0x12, [0x00] = 0x34
+            mock_memory_controller.read.side_effect = [3, 0x34, 0x12]
+            # 'LDA' 0xA1 opcode uses indirect addressing
+            value = AddressingModes.handle(0xA1, registers, mock_memory_controller)
+            self.assertEqual(mock_memory_controller.read.call_count, 3)
+            self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
+            self.assertEqual(mock_memory_controller.read.call_args_list[1], unittest.mock.call(2))
+            self.assertEqual(mock_memory_controller.read.call_args_list[2], unittest.mock.call(3))
+            self.assertEqual(registers.pc, 2)
+            self.assertEqual(value, 0x1234)
+
+    def test_zp_index_indirect_x_wraparound_2(self):
+
+        registers = Registers()
+        registers.pc = 1 #fake loading of opcode
+        registers.x_index = 0xfe
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xA1 0x03 and value at [0xff] = 0x12, [0x00] = 0x34
+            mock_memory_controller.read.side_effect = [1, 0x34, 0x12]
+            # 'LDA' 0xA1 opcode uses indirect addressing
+            value = AddressingModes.handle(0xA1, registers, mock_memory_controller)
+            self.assertEqual(mock_memory_controller.read.call_count, 3)
+            self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
+            self.assertEqual(mock_memory_controller.read.call_args_list[1], unittest.mock.call(0xff))
+            self.assertEqual(mock_memory_controller.read.call_args_list[2], unittest.mock.call(0))
+            self.assertEqual(registers.pc, 2)
+            self.assertEqual(value, 0x1234)
+
 if __name__ == '__main__':
     unittest.main()
