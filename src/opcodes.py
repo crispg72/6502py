@@ -86,8 +86,30 @@ def ldy(registers, operand, memory_controller):
     registers.y_index = operand
     registers.set_NZ(registers.y_index) 
 
+#################################################################################
+# JUMPS & BRANCHES
+
 def jmp(registers, operand, memory_controller):
     registers.pc = operand
+
+def take_branch(registers, operand):
+
+    AddressingModes.cycle_count += 1
+
+    if operand > 127:
+        operand = operand - 256
+
+    old_pc = registers.pc
+    registers.pc += operand
+
+    if (old_pc & 0xff00) != (registers.pc & 0xff00):
+        AddressingModes.cycle_count += 1
+
+def bpl(registers, operand, memory_controller):
+    if registers.negative_flag:
+        return
+
+    take_branch(registers, operand)
 
 class OpCode(object):
 
@@ -152,6 +174,7 @@ class OpCode(object):
         "ldya": ldya,
         "ldx": ldx,
         "ldy": ldy,
+        "bpl": bpl,
         "jmp": jmp
     }
 
