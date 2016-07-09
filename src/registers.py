@@ -15,7 +15,7 @@ class Registers(object):
 
         self.carry_flag = False
         self.zero_flag = False
-        self.interrupt_flag = True
+        self.interrupt_disable_flag = True
         self.decimal_mode_flag = False
         self.sw_interrupt = False
         self.overflow_flag = False

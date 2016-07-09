@@ -153,6 +153,30 @@ def beq(registers, operand, memory_controller):
 
     take_branch(registers, operand)
 
+#################################################################################
+# PROCESSOR STATUS FLAGS
+
+def clc(registers, operand, memory_controller):
+    registers.carry_flag = False
+
+def sec(registers, operand, memory_controller):
+    registers.carry_flag = True
+
+def cli(registers, operand, memory_controller):
+    registers.interrupt_disable_flag = False
+
+def sei(registers, operand, memory_controller):
+    registers.interrupt_disable_flag = True
+
+def clv(registers, operand, memory_controller):
+    registers.overflow_flag = False
+
+def cld(registers, operand, memory_controller):
+    registers.decimal_mode_flag = False
+
+def sed(registers, operand, memory_controller):
+    registers.decimal_mode_flag = True
+
 
 class OpCode(object):
 
@@ -225,6 +249,13 @@ class OpCode(object):
         "bcs": bcs,
         "bne": bne,
         "beq": beq,
+        "clc": clc,
+        "sec": sec,
+        "cli": cli,
+        "sei": sei,
+        "clv": clv,
+        "cld": cld,
+        "sed": sed,
         "jmp": jmp
     }
 
