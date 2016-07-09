@@ -111,6 +111,49 @@ def bpl(registers, operand, memory_controller):
 
     take_branch(registers, operand)
 
+def bmi(registers, operand, memory_controller):
+    if not registers.negative_flag:
+        return
+
+    take_branch(registers, operand)
+
+def bvc(registers, operand, memory_controller):
+    if registers.overflow_flag:
+        return
+
+    take_branch(registers, operand)
+
+def bvs(registers, operand, memory_controller):
+    if not registers.overflow_flag:
+        return
+
+    take_branch(registers, operand)
+
+def bcc(registers, operand, memory_controller):
+    if registers.carry_flag:
+        return
+
+    take_branch(registers, operand)
+
+def bcs(registers, operand, memory_controller):
+    if not registers.carry_flag:
+        return
+
+    take_branch(registers, operand)
+
+def bne(registers, operand, memory_controller):
+    if registers.zero_flag:
+        return
+
+    take_branch(registers, operand)
+
+def beq(registers, operand, memory_controller):
+    if not registers.zero_flag:
+        return
+
+    take_branch(registers, operand)
+
+
 class OpCode(object):
 
     opcode_table = [
@@ -175,6 +218,13 @@ class OpCode(object):
         "ldx": ldx,
         "ldy": ldy,
         "bpl": bpl,
+        "bmi": bmi,
+        "bvc": bvc,
+        "bvs": bvs,
+        "bcc": bcc,
+        "bcs": bcs,
+        "bne": bne,
+        "beq": beq,
         "jmp": jmp
     }
 
