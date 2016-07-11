@@ -187,6 +187,9 @@ def adc(registers, operand, memory_controller):
     registers.accumulator = registers.accumulator & 0xff
     registers.set_NZ(registers.accumulator) 
 
+def adcM(registers, operand, memory_controller):
+    adc(registers, memory_controller.read(operand), memory_controller)
+
 
 class OpCode(object):
 
@@ -199,7 +202,7 @@ class OpCode(object):
         ["rti", "eor", "nop", "sre", "nop", "eor", "lsr", "sre", "pha", "eor", "lsr", "nop", "jmp", "eor", "lsr", "sre"],  # 4
         ["bvc", "eor", "nop", "sre", "nop", "eor", "lsr", "sre", "cli", "eor", "nop", "sre", "nop", "eor", "lsr", "sre"],  # 5
         ["rts", "adc", "nop", "rra", "nop", "adc", "ror", "rra", "pla", "adc", "ror", "nop", "jmp", "adc", "ror", "rra"],  # 6
-        ["bvs", "adc", "nop", "rra", "nop", "adc", "ror", "rra", "sei", "adc", "nop", "rra", "nop", "adc", "ror", "rra"],  # 7
+        ["bvs", "adc", "nop", "rra", "nop", "adc", "ror", "rra", "sei", "adcM", "nop", "rra", "nop", "adcM", "ror", "rra"],  # 7
         ["nop", "sta", "nop", "sax", "sty", "sta", "stx", "sax", "dey", "nop", "txa", "nop", "sty", "sta", "stx", "sax"],  # 8
         ["bcc", "sta", "nop", "nop", "sty", "sta", "stx", "sax", "tya", "sta", "txs", "nop", "nop", "sta", "nop", "nop"],  # 9
         ["ldy", "ldaix", "ldx", "lax", "ldy", "lda", "ldx", "lax", "tay", "lda", "tax", "nop", "ldy", "lda", "ldx", "lax"],  # A
@@ -267,6 +270,7 @@ class OpCode(object):
         "cld": cld,
         "sed": sed,
         "adc": adc,
+        "adcM": adcM,
         "jmp": jmp
     }
 
