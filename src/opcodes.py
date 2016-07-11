@@ -177,6 +177,16 @@ def cld(registers, operand, memory_controller):
 def sed(registers, operand, memory_controller):
     registers.decimal_mode_flag = True
 
+#################################################################################
+# ARITHMETIC
+
+def adc(registers, operand, memory_controller):
+    registers.accumulator += operand + (1 if registers.carry_flag else 0)
+    registers.carry_flag = registers.accumulator > 255
+
+    registers.accumulator = registers.accumulator & 0xff
+    registers.set_NZ(registers.accumulator) 
+
 
 class OpCode(object):
 
@@ -256,6 +266,7 @@ class OpCode(object):
         "clv": clv,
         "cld": cld,
         "sed": sed,
+        "adc": adc,
         "jmp": jmp
     }
 
