@@ -153,6 +153,27 @@ class OpCodeTestsArithmetic(unittest.TestCase):
             self.assertFalse(registers.negative_flag)
             self.assertFalse(registers.carry_flag)
 
+    def test_execute_adc_absolute_x_page_boundary(self):
+
+        registers = Registers()
+        registers.accumulator = 5
+        registers.x_index = 3
+        registers.zero_flag = True
+        registers.negative_flag = True  
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xBD 0x2100 and value at [0x2202] = 1
+            mock_memory_controller.read.side_effect = [0xff, 0x21, 1]
+
+            registers.pc += 1 #need to fake the cpu reading the opcode
+            count = OpCode.execute(0x7D, registers, mock_memory_controller)
+            self.assertEqual(count, 5)
+            self.assertTrue(registers.accumulator == 6)
+            self.assertFalse(registers.zero_flag)
+            self.assertFalse(registers.negative_flag)
+            self.assertFalse(registers.carry_flag)
+
     def test_execute_adc_absolute_y(self):
 
         registers = Registers()
@@ -173,6 +194,94 @@ class OpCodeTestsArithmetic(unittest.TestCase):
             self.assertFalse(registers.zero_flag)
             self.assertFalse(registers.negative_flag)
             self.assertFalse(registers.carry_flag)
+
+    def test_execute_adc_absolute_y_page_boundary(self):
+
+        registers = Registers()
+        registers.accumulator = 5
+        registers.y_index = 3
+        registers.zero_flag = True
+        registers.negative_flag = True  
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0xBD 0x2100 and value at [0x2202] = 1
+            mock_memory_controller.read.side_effect = [0xff, 0x21, 1]
+
+            registers.pc += 1 #need to fake the cpu reading the opcode
+            count = OpCode.execute(0x79, registers, mock_memory_controller)
+            self.assertEqual(count, 5)
+            self.assertTrue(registers.accumulator == 6)
+            self.assertFalse(registers.zero_flag)
+            self.assertFalse(registers.negative_flag)
+            self.assertFalse(registers.carry_flag)
+
+    def test_execute_adc_indexed_indirect_x(self):
+
+        registers = Registers()
+        registers.accumulator = 5
+        registers.x_index = 3
+        registers.zero_flag = True
+        registers.negative_flag = True  
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0x61 0x03 and value at [0x06] = 0x1234, [0x1234] = 3
+            mock_memory_controller.read.side_effect = [3, 0x34, 0x12, 3]
+
+            registers.pc += 1 #need to fake the cpu reading the opcode
+            count = OpCode.execute(0x61, registers, mock_memory_controller)
+            self.assertEqual(count, 6)
+            self.assertEqual(mock_memory_controller.read.call_count, 4)            
+            self.assertTrue(registers.accumulator == 8)
+            self.assertFalse(registers.zero_flag)
+            self.assertFalse(registers.negative_flag)
+            self.assertFalse(registers.carry_flag)
+
+    def test_execute_adc_indirect_indexed_y(self):
+
+        registers = Registers()
+        registers.accumulator = 5
+        registers.y_index = 3
+        registers.zero_flag = True
+        registers.negative_flag = True  
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0x71 0x2a  memory at 0x2a = [0x28, 0x40], [0x402B] = 3
+            mock_memory_controller.read.side_effect = [0x2a, 0x28, 0x40, 3]
+
+            registers.pc += 1 #need to fake the cpu reading the opcode
+            count = OpCode.execute(0x71, registers, mock_memory_controller)
+            self.assertEqual(count, 5)
+            self.assertEqual(mock_memory_controller.read.call_count, 4)            
+            self.assertTrue(registers.accumulator == 8)
+            self.assertFalse(registers.zero_flag)
+            self.assertFalse(registers.negative_flag)
+            self.assertFalse(registers.carry_flag)
+
+    def test_execute_adc_indirect_indexed_y_page_boundary(self):
+
+        registers = Registers()
+        registers.accumulator = 5
+        registers.y_index = 3
+        registers.zero_flag = True
+        registers.negative_flag = True  
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # we're mocking 0x71 0x2a  memory at 0x2a = [0x28, 0x40], [0x4101] = 3
+            mock_memory_controller.read.side_effect = [0x2a, 0xfe, 0x40, 3]
+
+            registers.pc += 1 #need to fake the cpu reading the opcode
+            count = OpCode.execute(0x71, registers, mock_memory_controller)
+            self.assertEqual(count, 6)
+            self.assertEqual(mock_memory_controller.read.call_count, 4)            
+            self.assertTrue(registers.accumulator == 8)
+            self.assertFalse(registers.zero_flag)
+            self.assertFalse(registers.negative_flag)
+            self.assertFalse(registers.carry_flag)
+
 
 if __name__ == '__main__':
     unittest.main()

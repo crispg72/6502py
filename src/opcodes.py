@@ -201,8 +201,8 @@ class OpCode(object):
         ["bmi", "and", "nop", "rla", "nop", "and", "rol", "rla", "sec", "and", "nop", "rla", "nop", "and", "rol", "rla"],  # 3
         ["rti", "eor", "nop", "sre", "nop", "eor", "lsr", "sre", "pha", "eor", "lsr", "nop", "jmp", "eor", "lsr", "sre"],  # 4
         ["bvc", "eor", "nop", "sre", "nop", "eor", "lsr", "sre", "cli", "eor", "nop", "sre", "nop", "eor", "lsr", "sre"],  # 5
-        ["rts", "adc", "nop", "rra", "nop", "adc", "ror", "rra", "pla", "adc", "ror", "nop", "jmp", "adc", "ror", "rra"],  # 6
-        ["bvs", "adc", "nop", "rra", "nop", "adc", "ror", "rra", "sei", "adcM", "nop", "rra", "nop", "adcM", "ror", "rra"],  # 7
+        ["rts", "adcM", "nop", "rra", "nop", "adc", "ror", "rra", "pla", "adc", "ror", "nop", "jmp", "adc", "ror", "rra"],  # 6
+        ["bvs", "adcM", "nop", "rra", "nop", "adc", "ror", "rra", "sei", "adcM", "nop", "rra", "nop", "adcM", "ror", "rra"],  # 7
         ["nop", "sta", "nop", "sax", "sty", "sta", "stx", "sax", "dey", "nop", "txa", "nop", "sty", "sta", "stx", "sax"],  # 8
         ["bcc", "sta", "nop", "nop", "sty", "sta", "stx", "sax", "tya", "sta", "txs", "nop", "nop", "sta", "nop", "nop"],  # 9
         ["ldy", "ldaix", "ldx", "lax", "ldy", "lda", "ldx", "lax", "tay", "lda", "tax", "nop", "ldy", "lda", "ldx", "lax"],  # A
