@@ -6,7 +6,7 @@ from registers import Registers
 from opcodes import OpCode
 
 
-class OpCodeTests(unittest.TestCase):
+class OpCodeTestsLoads(unittest.TestCase):
     
     def test_execute_lda_immediate(self):
 

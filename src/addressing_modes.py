@@ -55,10 +55,13 @@ def indy(registers, memory_controller):
 
     return (high_address << 8) + low_address
 
-def zp(registers, memory_controller):
+def zpW(registers, memory_controller):
     low_address = memory_controller.read(registers.pc)
     registers.pc += 1
-    return memory_controller.read(low_address)
+    return low_address
+
+def zp(registers, memory_controller):
+    return memory_controller.read(zpW(registers, memory_controller))
 
 def zpx(registers, memory_controller):
     address = memory_controller.read(registers.pc)
@@ -136,7 +139,7 @@ class AddressingModes(object):
          [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx, absx, absx, absx], # 5 
          [  imp, indx,  imp, indx,   zp,   zp,   zp,   zp,  imp,  imm,  acc,  imm,  ind, abso, abso, abso], # 6 
          [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx, absx, absx, absx], # 7 
-         [  imm, indx,  imm, indx,   zp,   zp,   zp,   zp,  imp,  imm,  imp,  imm, abso, abso, abso, abso], # 8 
+         [  imm, indx,  imm, indx,  zpW,  zpW,  zpW,   zp,  imp,  imm,  imp,  imm, abso, abso, abso, abso], # 8 
          [  rel, indy,  imp, indy,  zpx,  zpx,  zpy,  zpy,  imp, absy,  imp, absy, absx, absx, absy, absy], # 9 
          [  imm, indx,  imm, indx,   zp,   zp,   zp,   zp,  imp,  imm,  imp,  imm, abso, abso, abso, abso], # A 
          [  rel, indy,  imp, indy,  zpx,  zpx,  zpy,  zpy,  imp, absy,  imp, absy, absx, absx, absy, absy], # B 

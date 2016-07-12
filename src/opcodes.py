@@ -87,6 +87,18 @@ def ldy(registers, operand, memory_controller):
     registers.set_NZ(registers.y_index) 
 
 #################################################################################
+# STORES
+
+def sta(registers, operand, memory_controller):
+    memory_controller.write(operand, registers.accumulator)
+
+def stx(registers, operand, memory_controller):
+    memory_controller.write(operand, registers.x_index)
+
+def sty(registers, operand, memory_controller):
+    memory_controller.write(operand, registers.y_index)
+
+#################################################################################
 # JUMPS & BRANCHES
 
 def jmp(registers, operand, memory_controller):
@@ -271,6 +283,9 @@ class OpCode(object):
         "sed": sed,
         "adc": adc,
         "adcM": adcM,
+        "sta": sta,
+        "stx": stx,
+        "sty": sty,
         "jmp": jmp
     }
 
