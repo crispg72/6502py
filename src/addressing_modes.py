@@ -63,32 +63,33 @@ def zpW(registers, memory_controller):
 def zp(registers, memory_controller):
     return memory_controller.read(zpW(registers, memory_controller))
 
-def zpx(registers, memory_controller):
+def zpxW(registers, memory_controller):
     address = memory_controller.read(registers.pc)
     registers.pc += 1
     address += registers.x_index
-    return memory_controller.read(address & 0xff)
+    return address & 0xff
 
-def zpy(registers, memory_controller):
+def zpx(registers, memory_controller):
+    return memory_controller.read(zpxW(registers, memory_controller))
+
+def zpyW(registers, memory_controller):
     address = memory_controller.read(registers.pc)
     registers.pc += 1
     address += registers.y_index
-    return memory_controller.read(address & 0xff)
+    return address & 0xff
 
-def abso(registers, memory_controller):
-    low_address = memory_controller.read(registers.pc)
-    registers.pc += 1
-    high_address = memory_controller.read(registers.pc)
-    registers.pc +=1
-    return memory_controller.read((high_address << 8) + low_address)
+def zpy(registers, memory_controller):
+    return memory_controller.read(zpyW(registers, memory_controller))
 
-# used by absolute jmp
-def absj(registers, memory_controller):
+def absoW(registers, memory_controller):
     low_address = memory_controller.read(registers.pc)
     registers.pc += 1
     high_address = memory_controller.read(registers.pc)
     registers.pc +=1
     return (high_address << 8) + low_address
+
+def abso(registers, memory_controller):
+    return memory_controller.read(absoW(registers, memory_controller))
 
 def absx(registers, memory_controller):
     low_address = memory_controller.read(registers.pc)
@@ -131,22 +132,22 @@ class AddressingModes(object):
 
     dispatch_table = [
         #|  0  |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  |  A  |  B  |  C  |  D  |  E  |  F  | 
-         [  imp, indx,  imp, indx,   zp,   zp,   zp,   zp,  imp,  imm,  acc,  imm, abso, abso, abso, abso], # 0 
-         [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx, absx, absx, absx], # 1 
-         [ abso, indx,  imp, indx,   zp,   zp,   zp,   zp,  imp,  imm,  acc,  imm, abso, abso, abso, abso], # 2 
-         [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx, absx, absx, absx], # 3 
-         [  imp, indx,  imp, indx,   zp,   zp,   zp,   zp,  imp,  imm,  acc,  imm, absj, abso, abso, abso], # 4 
-         [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx, absx, absx, absx], # 5 
-         [  imp, indx,  imp, indx,   zp,   zp,   zp,   zp,  imp,  imm,  acc,  imm,  ind, abso, abso, abso], # 6 
-         [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx, absx, absx, absx], # 7 
-         [  imm, indx,  imm, indx,  zpW,  zpW,  zpW,   zp,  imp,  imm,  imp,  imm, abso, abso, abso, abso], # 8 
-         [  rel, indy,  imp, indy,  zpx,  zpx,  zpy,  zpy,  imp, absy,  imp, absy, absx, absx, absy, absy], # 9 
-         [  imm, indx,  imm, indx,   zp,   zp,   zp,   zp,  imp,  imm,  imp,  imm, abso, abso, abso, abso], # A 
-         [  rel, indy,  imp, indy,  zpx,  zpx,  zpy,  zpy,  imp, absy,  imp, absy, absx, absx, absy, absy], # B 
-         [  imm, indx,  imm, indx,   zp,   zp,   zp,   zp,  imp,  imm,  imp,  imm, abso, abso, abso, abso], # C 
-         [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx, absx, absx, absx], # D 
-         [  imm, indx,  imm, indx,   zp,   zp,   zp,   zp,  imp,  imm,  imp,  imm, abso, abso, abso, abso], # E 
-         [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx, absx, absx, absx]  # F 
+         [  imp, indx,  imp, indx,   zp,   zp,   zp,   zp,  imp,  imm,  acc,  imm, abso,  abso, abso, abso], # 0 
+         [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx,  absx, absx, absx], # 1 
+         [ abso, indx,  imp, indx,   zp,   zp,   zp,   zp,  imp,  imm,  acc,  imm, abso,  abso, abso, abso], # 2 
+         [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx,  absx, absx, absx], # 3 
+         [  imp, indx,  imp, indx,   zp,   zp,   zp,   zp,  imp,  imm,  acc,  imm, absoW,  abso, abso, abso], # 4 
+         [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx,  absx, absx, absx], # 5 
+         [  imp, indx,  imp, indx,   zp,   zp,   zp,   zp,  imp,  imm,  acc,  imm,  ind,  abso, abso, abso], # 6 
+         [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx,  absx, absx, absx], # 7 
+         [  imm, indx,  imm, indx,  zpW,  zpW,  zpW,   zp,  imp,  imm,  imp,  imm, absoW, absoW, absoW, abso], # 8 
+         [  rel, indy,  imp, indy, zpxW, zpxW, zpyW,  zpy,  imp, absy,  imp, absy, absx,  absx, absy, absy], # 9 
+         [  imm, indx,  imm, indx,   zp,   zp,   zp,   zp,  imp,  imm,  imp,  imm, abso,  abso, abso, abso], # A 
+         [  rel, indy,  imp, indy,  zpx,  zpx,  zpy,  zpy,  imp, absy,  imp, absy, absx,  absx, absy, absy], # B 
+         [  imm, indx,  imm, indx,   zp,   zp,   zp,   zp,  imp,  imm,  imp,  imm, abso,  abso, abso, abso], # C 
+         [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx,  absx, absx, absx], # D 
+         [  imm, indx,  imm, indx,   zp,   zp,   zp,   zp,  imp,  imm,  imp,  imm, abso,  abso, abso, abso], # E 
+         [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx,  absx, absx, absx]  # F 
         ]
 
     # Used for marking extra cycles for crossing page boundary
