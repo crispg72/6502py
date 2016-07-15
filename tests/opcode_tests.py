@@ -1,6 +1,6 @@
 import unittest
 
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from memory_controller import MemoryController
 from registers import Registers
 from opcodes import OpCode
@@ -17,6 +17,24 @@ class OpCodeTests(unittest.TestCase):
             self.assertEqual(count, 2)
             mock_memory_controller.assert_not_called()
             self.assertTrue(registers == Registers())
+
+    def test_execute_brk(self):
+
+        registers = Registers()
+        registers.sp = 0x200
+
+        mock_memory_controller = Mock()
+        mock_memory_controller.read.side_effect = [0x00, 0x21]
+
+        registers.pc += 1 #need to fake the cpu reading the opcode        
+        count = OpCode.execute(0x0, registers, mock_memory_controller)
+        self.assertEqual(count, 7)
+        self.assertEqual(mock_memory_controller.read.call_count, 2)
+        self.assertEqual(mock_memory_controller.write.call_count, 3)
+        self.assertEqual(mock_memory_controller.write.call_args_list[0], unittest.mock.call(0x200, 1))
+        self.assertEqual(mock_memory_controller.write.call_args_list[1], unittest.mock.call(0x1ff, 0))
+        self.assertEqual(mock_memory_controller.write.call_args_list[2], unittest.mock.call(0x1fe, registers.status_register()))
+        self.assertEqual(registers.pc, 0x2100)
 
     def test_execute_tax(self):
 

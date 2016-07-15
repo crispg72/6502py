@@ -25,3 +25,13 @@ class Registers(object):
 
         self.negative_flag = (value & 0x80)
         self.zero_flag = (value == 0)
+
+    def status_register(self):
+
+        bits = 1 if self.overflow_flag else 0
+        bits |= 0x20 if self.decimal_mode_flag else 0
+        bits |= 0x40 if self.interrupt_disable_flag else 0
+        bits |= 0x10 if self.carry_flag else 0
+        bits |= 0x20 if self.zero_flag else 0
+        bits |= 0x40 if self.negative_flag else 0
+        return bits

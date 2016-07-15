@@ -1,8 +1,19 @@
 from addressing_modes import AddressingModes
 
+#################################################################################
+# SYSTEM
 
 def nop(registers, operand, memory_controller):
     pass
+
+def brk(registers, operand, memory_controller):
+    memory_controller.write(registers.sp, registers.pc & 0xff)
+    memory_controller.write(registers.sp-1, (registers.pc >> 8) & 0xff)
+    memory_controller.write(registers.sp-2, registers.status_register())
+
+    low_address = memory_controller.read(0xfffe)
+    high_address = memory_controller.read(0xffff)
+    registers.pc = (high_address << 8) | low_address
 
 def tax(registers, operand, memory_controller):
     registers.x_index = registers.accumulator
@@ -202,13 +213,28 @@ def adc(registers, operand, memory_controller):
 def adcM(registers, operand, memory_controller):
     adc(registers, memory_controller.read(operand), memory_controller)
 
+#################################################################################
+# ARITHMETIC
+
+def asl(registers, operand):
+    operand = operand * 2
+    registers.carry_flag = (operand & 0x100) != 0
+    operand = operand & 0xff
+    registers.set_NZ(operand) 
+    return operand
+
+def aslA(registers, operand, memory_controller):
+    registers.accumulator = asl(registers, registers.accumulator)
+
+def aslM(registers, operand, memory_controller):
+    memory_controller.write(operand, asl(registers, memory_controller.read(operand)))
 
 class OpCode(object):
 
     opcode_table = [
         #|  0 |  1   |  2   |  3   |  4   |  5   |  6   |  7   |  8   |  9   |  A   |  B   |  C   |  D   |  E   |  F   |
-        ["brk", "ora", "nop", "slo", "nop", "ora", "asl", "slo", "php", "ora", "asl", "nop", "nop", "ora", "asl", "slo"],  # 0
-        ["bpl", "ora", "nop", "slo", "nop", "ora", "asl", "slo", "clc", "ora", "nop", "slo", "nop", "ora", "asl", "slo"],  # 1
+        ["brk", "ora", "nop", "slo", "nop", "ora", "aslM", "slo", "php", "ora", "aslA", "nop", "nop", "ora", "aslM", "slo"],  # 0
+        ["bpl", "ora", "nop", "slo", "nop", "ora", "aslM", "slo", "clc", "ora", "nop", "slo", "nop", "ora", "aslM", "slo"],  # 1
         ["jsr", "and", "nop", "rla", "bit", "and", "rol", "rla", "plp", "and", "rol", "nop", "bit", "and", "rol", "rla"],  # 2
         ["bmi", "and", "nop", "rla", "nop", "and", "rol", "rla", "sec", "and", "nop", "rla", "nop", "and", "rol", "rla"],  # 3
         ["rti", "eor", "nop", "sre", "nop", "eor", "lsr", "sre", "pha", "eor", "lsr", "nop", "jmp", "eor", "lsr", "sre"],  # 4
@@ -286,6 +312,9 @@ class OpCode(object):
         "sta": sta,
         "stx": stx,
         "sty": sty,
+        "aslA": aslA,
+        "aslM": aslM,
+        "brk": brk,
         "jmp": jmp
     }
 

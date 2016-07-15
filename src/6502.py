@@ -17,11 +17,13 @@ class 6502(object):
 	def run(self, cycles):
 
         while cycles > 0:
+            opcode = self.memory_controller.read(self.pc)
+            cycle_count = OpCode.execute(opcode, self.registers, self.memory_controller)
+            cycles = cycles - cycle_count
 
-            opcode = self.memory_controller.read(self.pc++)
+    def run_until_signalled(self, signal):
 
-            self.execute(opcode, self.registers, self.memory_controller)
-
-            cycles = cycles - self.timing_table[opcode]
-
-    def execute(self, opcode):
+        total_cycles = 0
+        while not signal():
+            opcode = self.memory_controller.read(self.registers.pc)
+            total_cycles += OpCode.execute(opcode, self.registers, self.memory_controller)
