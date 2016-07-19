@@ -214,7 +214,7 @@ def adcM(registers, operand, memory_controller):
     adc(registers, memory_controller.read(operand), memory_controller)
 
 #################################################################################
-# ARITHMETIC
+# BIT SHIFTS
 
 def asl(registers, operand):
     operand = operand * 2
@@ -228,6 +228,21 @@ def aslA(registers, operand, memory_controller):
 
 def aslM(registers, operand, memory_controller):
     memory_controller.write(operand, asl(registers, memory_controller.read(operand)))
+
+#################################################################################
+# COMPARES
+
+def cmp(registers, operand, memory_controller):
+    difference = registers.accumulator - operand
+    registers.set_NZ(difference)
+
+def cpx(registers, operand, memory_controller):
+    difference = registers.x_index - operand
+    registers.set_NZ(difference)
+
+def cpy(registers, operand, memory_controller):
+    difference = registers.y_index - operand
+    registers.set_NZ(difference)
 
 class OpCode(object):
 
@@ -315,6 +330,9 @@ class OpCode(object):
         "aslA": aslA,
         "aslM": aslM,
         "brk": brk,
+        "cmp": cmp,
+        "cpx": cpx,
+        "cpy": cpy,
         "jmp": jmp
     }
 
