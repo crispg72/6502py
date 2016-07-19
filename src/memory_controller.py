@@ -13,5 +13,5 @@ class MemoryController(object):
 
     def write(self, address, value):
 
-        print("write:{0}:{1}".format(address, value))
+        #print("write:{0}:{1}".format(address, value))
         self.buffer[address] = value
