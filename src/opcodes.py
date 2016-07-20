@@ -229,20 +229,32 @@ def aslA(registers, operand, memory_controller):
 def aslM(registers, operand, memory_controller):
     memory_controller.write(operand, asl(registers, memory_controller.read(operand)))
 
+def rol(registers, operand):
+    operand = operand * 2
+    operand += (1 if registers.carry_flag else 0)
+    registers.carry_flag = (operand & 0x100) != 0
+    operand = operand & 0xff
+    registers.set_NZ(operand) 
+    return operand
+
+def rolA(registers, operand, memory_controller):
+    registers.accumulator = rol(registers, registers.accumulator)
+
 #################################################################################
 # COMPARES
 
-def cmp(registers, operand, memory_controller):
-    difference = registers.accumulator - operand
+def set_compare_flags(registers, difference):
     registers.set_NZ(difference)
+    registers.carry_flag = (difference >= 0)
+
+def cmp(registers, operand, memory_controller):
+    set_compare_flags(registers, registers.accumulator - operand)
 
 def cpx(registers, operand, memory_controller):
-    difference = registers.x_index - operand
-    registers.set_NZ(difference)
+    set_compare_flags(registers, registers.x_index - operand)
 
 def cpy(registers, operand, memory_controller):
-    difference = registers.y_index - operand
-    registers.set_NZ(difference)
+    set_compare_flags(registers, registers.y_index - operand)
 
 class OpCode(object):
 
@@ -250,7 +262,7 @@ class OpCode(object):
         #|  0 |  1   |  2   |  3   |  4   |  5   |  6   |  7   |  8   |  9   |  A   |  B   |  C   |  D   |  E   |  F   |
         ["brk", "ora", "nop", "slo", "nop", "ora", "aslM", "slo", "php", "ora", "aslA", "nop", "nop", "ora", "aslM", "slo"],  # 0
         ["bpl", "ora", "nop", "slo", "nop", "ora", "aslM", "slo", "clc", "ora", "nop", "slo", "nop", "ora", "aslM", "slo"],  # 1
-        ["jsr", "and", "nop", "rla", "bit", "and", "rol", "rla", "plp", "and", "rol", "nop", "bit", "and", "rol", "rla"],  # 2
+        ["jsr", "and", "nop", "rla", "bit", "and", "rol", "rla", "plp", "and", "rolA", "nop", "bit", "and", "rol", "rla"],  # 2
         ["bmi", "and", "nop", "rla", "nop", "and", "rol", "rla", "sec", "and", "nop", "rla", "nop", "and", "rol", "rla"],  # 3
         ["rti", "eor", "nop", "sre", "nop", "eor", "lsr", "sre", "pha", "eor", "lsr", "nop", "jmp", "eor", "lsr", "sre"],  # 4
         ["bvc", "eor", "nop", "sre", "nop", "eor", "lsr", "sre", "cli", "eor", "nop", "sre", "nop", "eor", "lsr", "sre"],  # 5
@@ -333,6 +345,7 @@ class OpCode(object):
         "cmp": cmp,
         "cpx": cpx,
         "cpy": cpy,
+        "rolA": rolA,
         "jmp": jmp
     }
 
