@@ -240,6 +240,9 @@ def rol(registers, operand):
 def rolA(registers, operand, memory_controller):
     registers.accumulator = rol(registers, registers.accumulator)
 
+def rolM(registers, operand, memory_controller):
+    memory_controller.write(operand, rol(registers, memory_controller.read(operand)))
+
 #################################################################################
 # COMPARES
 
@@ -262,7 +265,7 @@ class OpCode(object):
         #|  0 |  1   |  2   |  3   |  4   |  5   |  6   |  7   |  8   |  9   |  A   |  B   |  C   |  D   |  E   |  F   |
         ["brk", "ora", "nop", "slo", "nop", "ora", "aslM", "slo", "php", "ora", "aslA", "nop", "nop", "ora", "aslM", "slo"],  # 0
         ["bpl", "ora", "nop", "slo", "nop", "ora", "aslM", "slo", "clc", "ora", "nop", "slo", "nop", "ora", "aslM", "slo"],  # 1
-        ["jsr", "and", "nop", "rla", "bit", "and", "rol", "rla", "plp", "and", "rolA", "nop", "bit", "and", "rol", "rla"],  # 2
+        ["jsr", "and", "nop", "rla", "bit", "and", "rolM", "rla", "plp", "and", "rolA", "nop", "bit", "and", "rol", "rla"],  # 2
         ["bmi", "and", "nop", "rla", "nop", "and", "rol", "rla", "sec", "and", "nop", "rla", "nop", "and", "rol", "rla"],  # 3
         ["rti", "eor", "nop", "sre", "nop", "eor", "lsr", "sre", "pha", "eor", "lsr", "nop", "jmp", "eor", "lsr", "sre"],  # 4
         ["bvc", "eor", "nop", "sre", "nop", "eor", "lsr", "sre", "cli", "eor", "nop", "sre", "nop", "eor", "lsr", "sre"],  # 5
@@ -346,6 +349,7 @@ class OpCode(object):
         "cpx": cpx,
         "cpy": cpy,
         "rolA": rolA,
+        "rolM": rolM,
         "jmp": jmp
     }
 
