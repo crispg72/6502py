@@ -282,6 +282,116 @@ class OpCodeTestsArithmetic(unittest.TestCase):
             self.assertFalse(registers.negative_flag)
             self.assertFalse(registers.carry_flag)
 
+    def test_execute_sbc_immediate_carry_clear_result_positive(self):
+
+        registers = Registers()
+        registers.accumulator = 5
+        registers.zero_flag = True
+        registers.negative_flag = True  
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # Mocking 0xE9 0x04
+            mock_memory_controller.read.return_value = 3
+            registers.pc += 1 #need to fake the cpu reading the opcode
+            count = OpCode.execute(0xE9, registers, mock_memory_controller)
+            self.assertEqual(count, 2)
+            self.assertTrue(registers.accumulator == 1)
+            self.assertFalse(registers.zero_flag)
+            self.assertFalse(registers.negative_flag)
+            self.assertFalse(registers.carry_flag)
+
+    def test_execute_sbc_immediate_carry_clear_result_zero(self):
+
+        registers = Registers()
+        registers.accumulator = 5
+        registers.negative_flag = True  
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # Mocking 0xE9 0x05
+            mock_memory_controller.read.return_value = 4
+            registers.pc += 1 #need to fake the cpu reading the opcode
+            count = OpCode.execute(0xE9, registers, mock_memory_controller)
+            self.assertEqual(count, 2)
+            self.assertTrue(registers.accumulator == 0)
+            self.assertTrue(registers.zero_flag)
+            self.assertFalse(registers.negative_flag)
+            self.assertFalse(registers.carry_flag)
+
+    def test_execute_sbc_immediate_carry_clear_result_negative(self):
+
+        registers = Registers()
+        registers.accumulator = 5
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # Mocking 0xE9 0x06
+            mock_memory_controller.read.return_value = 5
+            registers.pc += 1 #need to fake the cpu reading the opcode
+            count = OpCode.execute(0xE9, registers, mock_memory_controller)
+            self.assertEqual(count, 2)
+            self.assertTrue(registers.accumulator == 0xff)
+            self.assertFalse(registers.zero_flag)
+            self.assertTrue(registers.negative_flag)
+            self.assertFalse(registers.carry_flag)
+
+    def test_execute_sbc_immediate_carry_set_result_positive(self):
+
+        registers = Registers()
+        registers.accumulator = 6
+        registers.carry_flag = True
+        registers.zero_flag = True
+        registers.negative_flag = True  
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # Mocking 0xE9 0x04
+            mock_memory_controller.read.return_value = 4
+            registers.pc += 1 #need to fake the cpu reading the opcode
+            count = OpCode.execute(0xE9, registers, mock_memory_controller)
+            self.assertEqual(count, 2)
+            self.assertTrue(registers.accumulator == 2)
+            self.assertFalse(registers.zero_flag)
+            self.assertFalse(registers.negative_flag)
+            self.assertFalse(registers.carry_flag)
+
+    def test_execute_sbc_immediate_carry_set_result_zero(self):
+
+        registers = Registers()
+        registers.accumulator = 4
+        registers.carry_flag = True        
+        registers.negative_flag = True  
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # Mocking 0xE9 0x05
+            mock_memory_controller.read.return_value = 4
+            registers.pc += 1 #need to fake the cpu reading the opcode
+            count = OpCode.execute(0xE9, registers, mock_memory_controller)
+            self.assertEqual(count, 2)
+            self.assertTrue(registers.accumulator == 0)
+            self.assertTrue(registers.zero_flag)
+            self.assertFalse(registers.negative_flag)
+            self.assertFalse(registers.carry_flag)
+
+    def test_execute_sbc_immediate_carry_set_result_negative(self):
+
+        registers = Registers()
+        registers.accumulator = 5
+        registers.carry_flag = True
+
+        with patch.object(MemoryController, 'read') as mock_memory_controller:
+
+            # Mocking 0xE9 0x06
+            mock_memory_controller.read.return_value = 6
+            registers.pc += 1 #need to fake the cpu reading the opcode
+            count = OpCode.execute(0xE9, registers, mock_memory_controller)
+            self.assertEqual(count, 2)
+            self.assertTrue(registers.accumulator == 0xff)
+            self.assertFalse(registers.zero_flag)
+            self.assertTrue(registers.negative_flag)
+            self.assertFalse(registers.carry_flag)
 
 if __name__ == '__main__':
     unittest.main()

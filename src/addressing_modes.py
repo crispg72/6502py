@@ -83,9 +83,8 @@ def zpy(registers, memory_controller):
 
 def absoW(registers, memory_controller):
     low_address = memory_controller.read(registers.pc)
-    registers.pc += 1
-    high_address = memory_controller.read(registers.pc)
-    registers.pc +=1
+    high_address = memory_controller.read(registers.pc+1)
+    registers.pc += 2
     return (high_address << 8) + low_address
 
 def abso(registers, memory_controller):
@@ -93,9 +92,8 @@ def abso(registers, memory_controller):
 
 def absx(registers, memory_controller):
     low_address = memory_controller.read(registers.pc)
-    registers.pc += 1
-    high_address = memory_controller.read(registers.pc)
-    registers.pc +=1
+    high_address = memory_controller.read(registers.pc+1)
+    registers.pc += 2
     low_address += registers.x_index
 
     if low_address > 255:
@@ -105,9 +103,8 @@ def absx(registers, memory_controller):
 
 def absy(registers, memory_controller):
     low_address = memory_controller.read(registers.pc)
-    registers.pc += 1
-    high_address = memory_controller.read(registers.pc)
-    registers.pc +=1
+    high_address = memory_controller.read(registers.pc+1)
+    registers.pc += 2
     low_address += registers.y_index
 
     if low_address > 255:
