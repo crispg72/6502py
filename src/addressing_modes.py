@@ -153,9 +153,11 @@ class AddressingModes(object):
     # Used for marking extra cycles for crossing page boundary
     cycle_count = 0
 
-    @staticmethod
-    def handle(opcode, registers, memory_controller):
+    def __init__(self):
+        pass
+
+    def handle(self, opcode, registers, memory_controller):
 
         # should value fetched according to mode (if applicable)
         # also updates registers according to mode
-        return AddressingModes.dispatch_table[(opcode & 0xf0) >> 4][opcode & 0xf](registers, memory_controller)
+        return self.dispatch_table[(opcode & 0xf0) >> 4][opcode & 0xf](registers, memory_controller)

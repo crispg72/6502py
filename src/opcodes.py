@@ -354,16 +354,18 @@ class OpCode(object):
     }
 
     def __init__(self):
-        pass
 
-    @staticmethod
-    def execute(opcode, registers, memory_controller):
+        self.addressing_modes = AddressingModes()
+
+    def execute(self, opcode, registers, memory_controller):
+
+        addressing_modes = self.addressing_modes
 
         low_nibble = opcode & 0xf
         high_nibble = (opcode & 0xf0) >> 4
 
-        AddressingModes.cycle_count = OpCode.cycle_counts[high_nibble][low_nibble]
+        addressing_modes.cycle_count = self.cycle_counts[high_nibble][low_nibble]
 
-        operand = AddressingModes.handle(opcode, registers, memory_controller)
-        OpCode.dispatch_table[OpCode.opcode_table[high_nibble][low_nibble]](registers, operand, memory_controller)
-        return AddressingModes.cycle_count
+        operand = addressing_modes.handle(opcode, registers, memory_controller)
+        self.dispatch_table[self.opcode_table[high_nibble][low_nibble]](registers, operand, memory_controller)
+        return addressing_modes.cycle_count
