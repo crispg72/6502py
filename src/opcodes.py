@@ -377,8 +377,8 @@ class OpCode(object):
         low_nibble = opcode & 0xf
         high_nibble = (opcode & 0xf0) >> 4
 
-        addressing_modes.cycle_count = self.cycle_counts[high_nibble][low_nibble]
+        AddressingModes.cycle_count = self.cycle_counts[high_nibble][low_nibble]
 
         operand = addressing_modes.handle(opcode, registers, memory_controller)
         self.dispatch_table[self.opcode_table[high_nibble][low_nibble]](registers, operand, memory_controller)
-        return addressing_modes.cycle_count
+        return AddressingModes.cycle_count

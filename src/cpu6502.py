@@ -26,6 +26,6 @@ class Cpu6502(object):
         while not signal():
             opcode = memory_controller.read(self.registers.pc)
             self.registers.pc += 1
-            total_cycles += self.opcodes.execute(opcode, self.registers, memory_controller)
+            total_cycles += self.opcodes.execute(opcode, self.registers, self.memory_controller)
 
         return total_cycles

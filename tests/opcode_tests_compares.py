@@ -10,6 +10,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cmp_immediate_lessthan(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.accumulator = 3
 
@@ -18,7 +19,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xC9 0x21 
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xC9, registers, mock_memory_controller)
+        count = opcode.execute(0xC9, registers, mock_memory_controller)
         self.assertEqual(count, 2)
         self.assertEqual(mock_memory_controller.read.call_count, 1)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
@@ -29,6 +30,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cmp_immediate_greaterthan(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.accumulator = 4
 
@@ -37,7 +39,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xC9 0x21 
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xC9, registers, mock_memory_controller)
+        count = opcode.execute(0xC9, registers, mock_memory_controller)
         self.assertEqual(count, 2)
         self.assertEqual(mock_memory_controller.read.call_count, 1)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
@@ -48,6 +50,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cmp_immediate_equalto(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.accumulator = 4
 
@@ -56,7 +59,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xC9 0x21 
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xC9, registers, mock_memory_controller)
+        count = opcode.execute(0xC9, registers, mock_memory_controller)
         self.assertEqual(count, 2)
         self.assertEqual(mock_memory_controller.read.call_count, 1)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
@@ -67,6 +70,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cpx_immediate_lessthan(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.x_index = 3
 
@@ -75,7 +79,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xE0 0x21 
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xE0, registers, mock_memory_controller)
+        count = opcode.execute(0xE0, registers, mock_memory_controller)
         self.assertEqual(count, 2)
         self.assertEqual(mock_memory_controller.read.call_count, 1)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
@@ -86,6 +90,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cpx_immediate_greaterthan(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.x_index = 4
 
@@ -94,7 +99,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xE0 0x03 
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xE0, registers, mock_memory_controller)
+        count = opcode.execute(0xE0, registers, mock_memory_controller)
         self.assertEqual(count, 2)
         self.assertEqual(mock_memory_controller.read.call_count, 1)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
@@ -105,6 +110,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cpx_immediate_equalto(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.x_index = 4
 
@@ -113,7 +119,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xE0 0x04 
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xE0, registers, mock_memory_controller)
+        count = opcode.execute(0xE0, registers, mock_memory_controller)
         self.assertEqual(count, 2)
         self.assertEqual(mock_memory_controller.read.call_count, 1)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
@@ -124,6 +130,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cpy_immediate_lessthan(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.y_index = 3
 
@@ -132,7 +139,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xC0 0x21 
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xC0, registers, mock_memory_controller)
+        count = opcode.execute(0xC0, registers, mock_memory_controller)
         self.assertEqual(count, 2)
         self.assertEqual(mock_memory_controller.read.call_count, 1)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
@@ -143,6 +150,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cpy_immediate_greaterthan(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.y_index = 4
 
@@ -151,7 +159,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xE0 0x03 
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xC0, registers, mock_memory_controller)
+        count = opcode.execute(0xC0, registers, mock_memory_controller)
         self.assertEqual(count, 2)
         self.assertEqual(mock_memory_controller.read.call_count, 1)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
@@ -162,6 +170,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cpy_immediate_equalto(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.y_index = 4
 
@@ -170,7 +179,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xE0 0x04 
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xC0, registers, mock_memory_controller)
+        count = opcode.execute(0xC0, registers, mock_memory_controller)
         self.assertEqual(count, 2)
         self.assertEqual(mock_memory_controller.read.call_count, 1)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
@@ -181,6 +190,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cmp_zeropage_lessthan(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.accumulator = 3
 
@@ -189,7 +199,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xC5 0x21 and [0x21] = 6
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xC5, registers, mock_memory_controller)
+        count = opcode.execute(0xC5, registers, mock_memory_controller)
         self.assertEqual(count, 3)
         self.assertEqual(mock_memory_controller.read.call_count, 2)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
@@ -201,6 +211,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cmp_zeropage_greaterthan(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.accumulator = 4
 
@@ -209,7 +220,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xC5 0x21 and [0x21] = 3
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xC5, registers, mock_memory_controller)
+        count = opcode.execute(0xC5, registers, mock_memory_controller)
         self.assertEqual(count, 3)
         self.assertEqual(mock_memory_controller.read.call_count, 2)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
@@ -221,6 +232,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cmp_zeropage_equalto(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.accumulator = 4
 
@@ -229,7 +241,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xC5 0x21 
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xC5, registers, mock_memory_controller)
+        count = opcode.execute(0xC5, registers, mock_memory_controller)
         self.assertEqual(count, 3)
         self.assertEqual(mock_memory_controller.read.call_count, 2)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
@@ -241,6 +253,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cpx_zeropage_lessthan(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.x_index = 3
 
@@ -249,7 +262,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xE4 0x21 and [0x21] = 6
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xE4, registers, mock_memory_controller)
+        count = opcode.execute(0xE4, registers, mock_memory_controller)
         self.assertEqual(count, 3)
         self.assertEqual(mock_memory_controller.read.call_count, 2)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
@@ -261,6 +274,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cpx_zeropage_greaterthan(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.x_index = 4
 
@@ -269,7 +283,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xE4 0x21 and [0x21] = 3
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xE4, registers, mock_memory_controller)
+        count = opcode.execute(0xE4, registers, mock_memory_controller)
         self.assertEqual(count, 3)
         self.assertEqual(mock_memory_controller.read.call_count, 2)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
@@ -281,6 +295,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cpx_zeropage_equalto(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.x_index = 4
 
@@ -289,7 +304,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xE4 0x21 
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xE4, registers, mock_memory_controller)
+        count = opcode.execute(0xE4, registers, mock_memory_controller)
         self.assertEqual(count, 3)
         self.assertEqual(mock_memory_controller.read.call_count, 2)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
@@ -301,6 +316,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cpy_zeropage_lessthan(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.y_index = 3
 
@@ -309,7 +325,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xC4 0x21 and [0x21] = 6
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xC4, registers, mock_memory_controller)
+        count = opcode.execute(0xC4, registers, mock_memory_controller)
         self.assertEqual(count, 3)
         self.assertEqual(mock_memory_controller.read.call_count, 2)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
@@ -321,6 +337,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cpy_zeropage_greaterthan(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.y_index = 4
 
@@ -329,7 +346,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xC4 0x21 and [0x21] = 3
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xC4, registers, mock_memory_controller)
+        count = opcode.execute(0xC4, registers, mock_memory_controller)
         self.assertEqual(count, 3)
         self.assertEqual(mock_memory_controller.read.call_count, 2)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
@@ -341,6 +358,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
     def test_execute_cpy_zeropage_equalto(self):
 
+        opcode = OpCode()
         registers = Registers()
         registers.y_index = 4
 
@@ -349,7 +367,7 @@ class OpCodeTestsCompares(unittest.TestCase):
 
         # we're mocking 0xC4 0x21 
         registers.pc += 1 #need to fake the cpu reading the opcode
-        count = OpCode.execute(0xC4, registers, mock_memory_controller)
+        count = opcode.execute(0xC4, registers, mock_memory_controller)
         self.assertEqual(count, 3)
         self.assertEqual(mock_memory_controller.read.call_count, 2)
         self.assertEqual(mock_memory_controller.read.call_args_list[0], unittest.mock.call(1))
