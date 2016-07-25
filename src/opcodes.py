@@ -204,7 +204,9 @@ def sed(registers, operand, memory_controller):
 # ARITHMETIC
 
 def adc(registers, operand, memory_controller):
-    registers.accumulator += operand + (1 if registers.carry_flag else 0)
+    #print("a:{0} o:{1} c:{2}".format(registers.accumulator, operand, registers.carry_flag))
+
+    registers.accumulator += (operand + (1 if registers.carry_flag else 0))
     registers.carry_flag = registers.accumulator > 255
 
     registers.accumulator = registers.accumulator & 0xff
@@ -212,6 +214,16 @@ def adc(registers, operand, memory_controller):
 
 def adcM(registers, operand, memory_controller):
     adc(registers, memory_controller.read(operand), memory_controller)
+
+def sbc(registers, operand, memory_controller):
+    #print("a:{0} o:{1} c:{2}".format(registers.accumulator, operand, registers.carry_flag))
+    registers.accumulator -= (operand + (1 if not registers.carry_flag else 0))
+
+    #print("a:{0}".format(registers.accumulator))
+    registers.overflow_flag = (registers.accumulator > 127) or (registers.accumulator < -128)
+    registers.carry_flag = registers.accumulator > 255                                
+    registers.accumulator = registers.accumulator & 0xff
+    registers.set_NZ(registers.accumulator) 
 
 #################################################################################
 # BIT SHIFTS
@@ -350,6 +362,7 @@ class OpCode(object):
         "cpy": cpy,
         "rolA": rolA,
         "rolM": rolM,
+        "sbc": sbc,
         "jmp": jmp
     }
 
