@@ -131,7 +131,7 @@ class AddressingModes(object):
         #|  0  |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  |  A  |  B  |  C  |  D  |  E  |  F  | 
          [  imp, indx,  imp, indx,   zp,   zp,  zpW,   zp,  imp,  imm,  acc,  imm, abso,  abso, absoW, abso], # 0 
          [  rel, indy,  imp, indy,  zpx,  zpx, zpxW,  zpx,  imp, absy,  imp, absy, absx,  absx, absx, absx], # 1 
-         [ abso, indx,  imp, indx,   zp,   zp,  zpW,   zp,  imp,  imm,  acc,  imm, abso,  abso, abso, abso], # 2 
+         [ abso, indx,  imp, indx,   zp,   zp,  zpW,   zp,  imp,  imm,  acc,  imm, abso,  abso, absoW, abso], # 2 
          [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx,  absx, absx, absx], # 3 
          [  imp, indx,  imp, indx,   zp,   zp,   zp,   zp,  imp,  imm,  acc,  imm, absoW,  abso, abso, abso], # 4 
          [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx,  absx, absx, absx], # 5 
@@ -141,9 +141,9 @@ class AddressingModes(object):
          [  rel, indy,  imp, indy, zpxW, zpxW, zpyW,  zpy,  imp, absy,  imp, absy, absx,  absx, absy, absy], # 9 
          [  imm, indx,  imm, indx,   zp,   zp,   zp,   zp,  imp,  imm,  imp,  imm, abso,  abso, abso, abso], # A 
          [  rel, indy,  imp, indy,  zpx,  zpx,  zpy,  zpy,  imp, absy,  imp, absy, absx,  absx, absy, absy], # B 
-         [  imm, indx,  imm, indx,   zp,   zp,   zp,   zp,  imp,  imm,  imp,  imm, abso,  abso, abso, abso], # C 
+         [  imm, indx,  imm, indx,   zp,   zp,  zpW,   zp,  imp,  imm,  imp,  imm, abso,  abso, abso, abso], # C 
          [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx,  absx, absx, absx], # D 
-         [  imm, indx,  imm, indx,   zp,   zp,   zp,   zp,  imp,  imm,  imp,  imm, abso,  abso, abso, abso], # E 
+         [  imm, indx,  imm, indx,   zp,   zp,  zpW,   zp,  imp,  imm,  imp,  imm, abso,  abso, abso, abso], # E 
          [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx,  absx, absx, absx]  # F 
         ]
 

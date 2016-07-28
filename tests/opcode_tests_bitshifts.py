@@ -273,5 +273,64 @@ class OpCodeTestsBitShifts(unittest.TestCase):
         self.assertTrue(registers.carry_flag)
         self.assertTrue(registers.negative_flag)
 
+    def test_execute_rol_absolute_carry_clear_sign_clear(self):
+
+        opcode = OpCode()
+        registers = Registers()
+
+        mock_memory_controller = Mock()
+        mock_memory_controller.read.side_effect = [0x00, 0x30, 3]
+
+        # we're mocking 0x2E 0x30 and [0x3000] = 3
+        registers.pc += 1 #need to fake the cpu reading the opcode
+        count = opcode.execute(0x2E, registers, mock_memory_controller)
+        self.assertEqual(count, 6)
+        self.assertEqual(mock_memory_controller.read.call_count, 3)
+        mock_memory_controller.write.assert_called_with(0x3000, 6)
+        self.assertEqual(registers.pc, 3)
+        self.assertFalse(registers.zero_flag)
+        self.assertFalse(registers.carry_flag)
+        self.assertFalse(registers.negative_flag)
+
+    def test_execute_rol_absolute_carry_set_sign_clear(self):
+
+        opcode = OpCode()
+        registers = Registers()
+        registers.carry_flag = True
+
+        mock_memory_controller = Mock()
+        mock_memory_controller.read.side_effect = [0x00, 0x30, 3]
+
+        # we're mocking 0x2E 0x30 and [0x3000] = 3
+        registers.pc += 1 #need to fake the cpu reading the opcode
+        count = opcode.execute(0x2E, registers, mock_memory_controller)
+        self.assertEqual(count, 6)
+        self.assertEqual(mock_memory_controller.read.call_count, 3)
+        mock_memory_controller.write.assert_called_with(0x3000, 7)
+        self.assertEqual(registers.pc, 3)
+        self.assertFalse(registers.zero_flag)
+        self.assertFalse(registers.carry_flag)
+        self.assertFalse(registers.negative_flag)
+
+    def test_execute_rol_absolute_carry_clear_sign_set(self):
+
+        opcode = OpCode()
+        registers = Registers()
+        registers.accumulator = 0xc0
+
+        mock_memory_controller = Mock()
+        mock_memory_controller.read.side_effect = [0x00, 0x30, 0xc0]
+
+        # we're mocking 0x2E 0x30 and [0x3000] = 3
+        registers.pc += 1 #need to fake the cpu reading the opcode
+        count = opcode.execute(0x2E, registers, mock_memory_controller)
+        self.assertEqual(count, 6)
+        self.assertEqual(mock_memory_controller.read.call_count, 3)
+        mock_memory_controller.write.assert_called_with(0x3000, 0x80)
+        self.assertEqual(registers.pc, 3)
+        self.assertFalse(registers.zero_flag)
+        self.assertTrue(registers.carry_flag)
+        self.assertTrue(registers.negative_flag)
+
 if __name__ == '__main__':
     unittest.main()

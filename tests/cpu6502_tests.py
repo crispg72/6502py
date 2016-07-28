@@ -166,8 +166,8 @@ class cpu6502Tests(unittest.TestCase):
         for byte in range(len(self.sqrt_instructions)):
             test_memory_controller.buffer[0x600+byte] = self.sqrt_instructions[byte]
 
-        test_memory_controller.buffer[0xf0] = 25
-        test_memory_controller.buffer[0xf1] = 0
+        test_memory_controller.buffer[0xf0] = 0x11
+        test_memory_controller.buffer[0xf1] = 2
 
         cpu = Cpu6502(test_memory_controller)
         cpu.registers.pc = 0x0600
@@ -179,7 +179,7 @@ class cpu6502Tests(unittest.TestCase):
 
         print("Sqrt(25)={0} remainder {1}".format(
                 test_memory_controller.read(0xf6),
-                test_memory_controller.read(0xf5 * 256) + test_memory_controller.read(0xf4)))
+                (test_memory_controller.read(0xf3) * 256) + test_memory_controller.read(0xf2)))
 
     #############################################
 
@@ -226,6 +226,71 @@ class cpu6502Tests(unittest.TestCase):
         for result in range(0, 9):
             print("F({0}) = {1}".format(result, test_memory_controller.read(0xf1b + result)))
 
+    #############################################
+
+    # at 0x0600
+    divide_instructions = [ 0xA9, 0x00, 0x8D, 0x5C, 0x00, 0x8D, 0x5D, 0x00, 0xA2, 0x10,
+                            0x0E, 0x5A, 0x00, 0x2E, 0x5B, 0x00, 0x2E, 0x5C, 0x00, 0x2E,
+                            0x5D, 0x00, 0xAD, 0x5C, 0x00, 0x38, 0xED, 0x58, 0x00, 0xA8,
+                            0xAD, 0x5D, 0x00, 0xED, 0x59, 0x00, 0x90, 0x09, 0x8D, 0x5D,
+                            0x00, 0x8C, 0x5C, 0x00, 0xEE, 0x5E, 0x00, 0xCA, 0xD0, 0xD8, 0x00 ] 
+
+    # code is
+
+    # divisor = $58     ;$59 used for hi-byte
+    # dividend = $5a    ;$5b used for hi-byte
+    # remainder = $5c   ;$5d used for hi-byte
+    # result = $5e      ;$5e to store the result
+    # 
+    # divide:  lda #0          ;preset remainder to 0
+    #          sta remainder
+    #          sta remainder+1
+    #          ldx #16         ;repeat for each bit: ...
+    # 
+    # divloop: asl dividend    ;dividend lb & hb*2, msb -> Carry
+    #          rol dividend+1  
+    #          rol remainder   ;remainder lb & hb * 2 + msb from carry
+    #          rol remainder+1
+    #          lda remainder
+    #          sec
+    #          sbc divisor ;substract divisor to see if it fits in
+    #          tay         ;lb result -> Y, for we may need it later
+    #          lda remainder+1
+    #          sbc divisor+1
+    #          bcc skip    ;if carry=0 then divisor didn't fit in yet
+    # 
+    #          sta remainder+1 ;else save substraction result as new remainder,
+    #          sty remainder   
+    #          inc result  ;and INCrement result cause divisor fit in 1 times
+    # 
+    # skip:    dex
+    #          bne divloop 
+    #          rts
+    
+    def test_execute_16bit_divide_function_1(self):
+
+        test_memory_controller = TestMemoryController()
+        for byte in range(len(self.divide_instructions)):
+            test_memory_controller.buffer[0x600+byte] = self.divide_instructions[byte]
+
+        cpu = Cpu6502(test_memory_controller)
+        cpu.registers.pc = 0x0600
+
+        cpu.registers.accumulator = 10
+
+        test_memory_controller.buffer[0x58] = 8
+        test_memory_controller.buffer[0x59] = 0
+
+        test_memory_controller.buffer[0x5a] = 32
+        test_memory_controller.buffer[0x5b] = 0
+
+        start = time.perf_counter()
+        total_clocks = cpu.run_until_signalled(test_memory_controller.is_signalled)
+        print("Clocks:{0}".format(total_clocks))
+        print("Time:{0}".format(time.perf_counter() - start))
+
+        print("32 / 8 = {0} remainder {1}".format(test_memory_controller.read(0x5e) + (test_memory_controller.read(0x5f) * 256),
+                test_memory_controller.read(0x5c) + (test_memory_controller.read(0x5d) * 256)))
 
 if __name__ == '__main__':
     unittest.main()

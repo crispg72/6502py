@@ -26,6 +26,16 @@ class Registers(object):
         self.negative_flag = (value & 0x80)
         self.zero_flag = (value == 0)
 
+    def set_NZV(self, operand, result):
+
+        signbits_differ = (operand ^ self.accumulator) & 0x80
+        resultsign_differs = (operand ^ result) & 0x80
+
+        #print("a: {2} o:{0} r:{1}".format(operand, result, self.accumulator))
+        #print("rd:{0} sd:{1}".format(resultsign_differs, signbits_differ))
+        self.overflow_flag = resultsign_differs and not signbits_differ
+        self.set_NZ(result)
+
     def status_register(self):
 
         bits = 1 if self.overflow_flag else 0

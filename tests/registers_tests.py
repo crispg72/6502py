@@ -29,6 +29,34 @@ class RegistersTests(unittest.TestCase):
         self.assertTrue(registers.negative_flag)
         self.assertFalse(registers.zero_flag)
 
+    def test_set_NZV_non_zero_negative_no_overflow(self):
+
+        registers = Registers()
+        registers.accumulator = 4
+        registers.set_NZV(-3, 1)
+        self.assertFalse(registers.negative_flag)
+        self.assertFalse(registers.zero_flag)
+        self.assertFalse(registers.overflow_flag)
+
+    def test_set_NZV_non_zero_not_negative_overflow(self):
+
+        registers = Registers()
+        registers.accumulator = 0x80
+        # Here we act as if we have done -128 + -1
+        registers.set_NZV(0xff, 0x7f)
+        self.assertFalse(registers.negative_flag)
+        self.assertFalse(registers.zero_flag)
+        self.assertTrue(registers.overflow_flag)
+
+    def test_set_NZV_non_zero_negative_overflow(self):
+
+        registers = Registers()
+        registers.accumulator = 0x7f
+        # Here we act as if we have done 127 + 1
+        registers.set_NZV(1, 0x80)
+        self.assertTrue(registers.negative_flag)
+        self.assertFalse(registers.zero_flag)
+        self.assertTrue(registers.overflow_flag)
 
 if __name__ == '__main__':
     unittest.main()

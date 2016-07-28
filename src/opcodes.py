@@ -206,23 +206,26 @@ def sed(registers, operand, memory_controller):
 def adc(registers, operand, memory_controller):
     #print("a:{0} o:{1} c:{2}".format(registers.accumulator, operand, registers.carry_flag))
 
-    registers.accumulator += (operand + (1 if registers.carry_flag else 0))
-    registers.carry_flag = registers.accumulator > 255
+    result = registers.accumulator + (operand + (1 if registers.carry_flag else 0))
 
-    registers.accumulator = registers.accumulator & 0xff
-    registers.set_NZ(registers.accumulator) 
+    registers.set_NZV(operand, result & 0xff) 
+    registers.accumulator = result & 0xff
+    registers.carry_flag = result > 255
 
 def adcM(registers, operand, memory_controller):
     adc(registers, memory_controller.read(operand), memory_controller)
 
 def sbc(registers, operand, memory_controller):
     #print("a:{0} o:{1} c:{2}".format(registers.accumulator, operand, registers.carry_flag))
-    registers.accumulator -= (operand + (1 if not registers.carry_flag else 0))
+    result = registers.accumulator + (registers.carry_flag * 256) - operand
 
-    #print("a:{0}".format(registers.accumulator))
-    registers.overflow_flag = (registers.accumulator > 127) or (registers.accumulator < -128)
-    registers.carry_flag = registers.accumulator > 255                                
-    registers.accumulator = registers.accumulator & 0xff
+    signbits_differ = (operand ^ registers.accumulator) & 0x80
+    resultsign_differs = (registers.accumulator ^ result) & 0x80
+
+    registers.overflow_flag = resultsign_differs and signbits_differ
+    #registers.carry_flag = (result > 255)
+    registers.carry_flag = registers.accumulator >= operand
+    registers.accumulator = result & 0xff
     registers.set_NZ(registers.accumulator) 
 
 #################################################################################
@@ -271,13 +274,30 @@ def cpx(registers, operand, memory_controller):
 def cpy(registers, operand, memory_controller):
     set_compare_flags(registers, registers.y_index - operand)
 
+#################################################################################
+# INC AND DEC
+
+def inc(registers, operand, memory_controller):
+    value = memory_controller.read(operand)
+    value += 1
+    value = value & 0xff
+    registers.set_NZ(value)
+    memory_controller.write(operand, value)
+
+def dec(registers, operand, memory_controller):
+    value = memory_controller.read(operand)
+    value -= 1
+    value = value & 0xff
+    registers.set_NZ(value)
+    memory_controller.write(operand, value)
+
 class OpCode(object):
 
     opcode_table = [
         #|  0 |  1   |  2   |  3   |  4   |  5   |  6   |  7   |  8   |  9   |  A   |  B   |  C   |  D   |  E   |  F   |
         ["brk", "ora", "nop", "slo", "nop", "ora", "aslM", "slo", "php", "ora", "aslA", "nop", "nop", "ora", "aslM", "slo"],  # 0
         ["bpl", "ora", "nop", "slo", "nop", "ora", "aslM", "slo", "clc", "ora", "nop", "slo", "nop", "ora", "aslM", "slo"],  # 1
-        ["jsr", "and", "nop", "rla", "bit", "and", "rolM", "rla", "plp", "and", "rolA", "nop", "bit", "and", "rol", "rla"],  # 2
+        ["jsr", "and", "nop", "rla", "bit", "and", "rolM", "rla", "plp", "and", "rolA", "nop", "bit", "and", "rolM", "rla"],  # 2
         ["bmi", "and", "nop", "rla", "nop", "and", "rol", "rla", "sec", "and", "nop", "rla", "nop", "and", "rol", "rla"],  # 3
         ["rti", "eor", "nop", "sre", "nop", "eor", "lsr", "sre", "pha", "eor", "lsr", "nop", "jmp", "eor", "lsr", "sre"],  # 4
         ["bvc", "eor", "nop", "sre", "nop", "eor", "lsr", "sre", "cli", "eor", "nop", "sre", "nop", "eor", "lsr", "sre"],  # 5
@@ -363,6 +383,8 @@ class OpCode(object):
         "rolA": rolA,
         "rolM": rolM,
         "sbc": sbc,
+        "inc": inc,
+        "dec": dec,
         "jmp": jmp
     }
 
