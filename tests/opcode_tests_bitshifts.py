@@ -266,7 +266,6 @@ class OpCodeTestsBitShifts(unittest.TestCase):
         registers.pc += 1 #need to fake the cpu reading the opcode
         count = opcode.execute(0x26, registers, mock_memory_controller)
         self.assertEqual(count, 5)
-        mock_memory_controller.read.assert_not_called()
         mock_memory_controller.write.assert_called_with(0x30, 0x80)
         self.assertEqual(registers.pc, 2)
         self.assertFalse(registers.zero_flag)

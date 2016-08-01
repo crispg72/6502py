@@ -1,6 +1,6 @@
 import unittest
 
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from memory_controller import MemoryController
 from registers import Registers
 from opcodes import OpCode
@@ -288,30 +288,44 @@ class OpCodeTestsArithmetic(unittest.TestCase):
             registers.pc += 1 #need to fake the cpu reading the opcode
             count = opcode.execute(0x71, registers, mock_memory_controller)
             self.assertEqual(count, 6)
-            self.assertEqual(mock_memory_controller.read.call_count, 4)            
+            self.assertEqual(mock_memory_controller.read.call_count, 4)
             self.assertTrue(registers.accumulator == 8)
             self.assertFalse(registers.zero_flag)
             self.assertFalse(registers.negative_flag)
             self.assertFalse(registers.carry_flag)
 
-    def test_execute_sbc_immediate_borrow_in_borrow_out_no_overflow_positive_result(self):
+    def execute_sbc_borrow_in_borrow_out_no_overflow_positive_result(self, actual_opcode, expected_clocks, mock_memory_controller):
 
         opcode = OpCode()
         registers = Registers()
         registers.accumulator = 0x50
 
-        with patch.object(MemoryController, 'read') as mock_memory_controller:
+        # Mocking 0x150 - 0xf0 (borrow 'in')
+        registers.pc += 1 #need to fake the cpu reading the opcode
+        count = opcode.execute(actual_opcode, registers, mock_memory_controller)
+        self.assertEqual(count, expected_clocks)
+        self.assertEqual(registers.accumulator, 0x5f)
+        self.assertFalse(registers.zero_flag)
+        self.assertFalse(registers.negative_flag)
+        self.assertFalse(registers.carry_flag)
+        self.assertFalse(registers.overflow_flag)
 
-            # Mocking 0xE9 0xf0 so subtracting 0x150 - 0xf0 (borrow 'in')
-            mock_memory_controller.read.return_value = 0xf0
-            registers.pc += 1 #need to fake the cpu reading the opcode
-            count = opcode.execute(0xE9, registers, mock_memory_controller)
-            self.assertEqual(count, 2)
-            self.assertTrue(registers.accumulator == 0x60)
-            self.assertFalse(registers.zero_flag)
-            self.assertFalse(registers.negative_flag)
-            self.assertFalse(registers.carry_flag)
-            self.assertFalse(registers.overflow_flag)
+    def test_execute_sbc_immediate_borrow_in_borrow_out_no_overflow_positive_result(self):
+
+        mock_memory_controller = Mock()
+        mock_memory_controller.read.return_value = 0xf0
+
+        self.execute_sbc_borrow_in_borrow_out_no_overflow_positive_result(0xE9, 2, mock_memory_controller)
+        self.assertEqual(mock_memory_controller.read.call_count, 1)
+
+    def test_execute_sbc_absolute_borrow_in_borrow_out_no_overflow_positive_result(self):
+
+        mock_memory_controller = Mock()
+        # we're mocking 0xED 0x0 0x20 and [0x2000] = 0xf0
+        mock_memory_controller.read.side_effect = [0, 0x20, 0xf0]
+
+        self.execute_sbc_borrow_in_borrow_out_no_overflow_positive_result(0xED, 4, mock_memory_controller)
+        self.assertEqual(mock_memory_controller.read.call_count, 3)
 
     def test_execute_sbc_immediate_no_borrow_in_borrow_out_overflow_negative_result(self):
 
@@ -346,7 +360,7 @@ class OpCodeTestsArithmetic(unittest.TestCase):
             registers.pc += 1 #need to fake the cpu reading the opcode
             count = opcode.execute(0xE9, registers, mock_memory_controller)
             self.assertEqual(count, 2)
-            self.assertTrue(registers.accumulator == 0xe0)
+            self.assertEqual(registers.accumulator, 0xdf)
             self.assertFalse(registers.zero_flag)
             self.assertTrue(registers.negative_flag)
             self.assertFalse(registers.carry_flag)
@@ -385,7 +399,7 @@ class OpCodeTestsArithmetic(unittest.TestCase):
             registers.pc += 1 #need to fake the cpu reading the opcode
             count = opcode.execute(0xE9, registers, mock_memory_controller)
             self.assertEqual(count, 2)
-            self.assertTrue(registers.accumulator == 0xe0)
+            self.assertEqual(registers.accumulator, 0xdf)
             self.assertFalse(registers.zero_flag)
             self.assertTrue(registers.negative_flag)
             self.assertFalse(registers.carry_flag)
@@ -424,7 +438,7 @@ class OpCodeTestsArithmetic(unittest.TestCase):
             registers.pc += 1 #need to fake the cpu reading the opcode
             count = opcode.execute(0xE9, registers, mock_memory_controller)
             self.assertEqual(count, 2)
-            self.assertTrue(registers.accumulator == 0x60)
+            self.assertEqual(registers.accumulator, 0x5f)
             self.assertFalse(registers.zero_flag)
             self.assertFalse(registers.negative_flag)
             self.assertTrue(registers.carry_flag)

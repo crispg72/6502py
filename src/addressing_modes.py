@@ -143,7 +143,7 @@ class AddressingModes(object):
          [  rel, indy,  imp, indy,  zpx,  zpx,  zpy,  zpy,  imp, absy,  imp, absy, absx,  absx, absy, absy], # B 
          [  imm, indx,  imm, indx,   zp,   zp,  zpW,   zp,  imp,  imm,  imp,  imm, abso,  abso, abso, abso], # C 
          [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx,  absx, absx, absx], # D 
-         [  imm, indx,  imm, indx,   zp,   zp,  zpW,   zp,  imp,  imm,  imp,  imm, abso,  abso, abso, abso], # E 
+         [  imm, indx,  imm, indx,   zp,   zp,  zpW,   zp,  imp,  imm,  imp,  imm, abso,  abso, absoW, abso], # E 
          [  rel, indy,  imp, indy,  zpx,  zpx,  zpx,  zpx,  imp, absy,  imp, absy, absx,  absx, absx, absx]  # F 
         ]
 

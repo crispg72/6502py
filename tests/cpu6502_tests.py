@@ -292,5 +292,63 @@ class cpu6502Tests(unittest.TestCase):
         print("32 / 8 = {0} remainder {1}".format(test_memory_controller.read(0x5e) + (test_memory_controller.read(0x5f) * 256),
                 test_memory_controller.read(0x5c) + (test_memory_controller.read(0x5d) * 256)))
 
+    #############################################
+
+    # at 0x0600
+    subtract_16bit_instructions = [ 0x38, 0xA5, 0x20, 0xE5, 0x22, 0x85, 0x24, 0xA5,
+        0x21, 0xE5, 0x23, 0x85, 0x25, 0x00, ] 
+
+    # code is [0x24,0x25] = [0x20,0x21] - [0x22,0x23]
+
+    #       SEC
+    #       LDA *$20
+    #       SBC *$22
+    #       STA *$24
+    #       LDA *$21
+    #       SBC *$23     
+    #       STA *$25 
+    #       brk    
+    
+    def test_execute_16bit_subtract_function(self):
+
+        test_memory_controller = TestMemoryController()
+        for byte in range(len(self.subtract_16bit_instructions)):
+            test_memory_controller.buffer[0x600+byte] = self.subtract_16bit_instructions[byte]
+
+        subtractions = [
+            (5000, 3000, 2000),
+            (15000, 2000, 13000),
+            (35000, 4000, 31000),
+            (25000, 12000, 13000),
+            (2000, 3000, 0xfc18),
+            (20000, 26000, 0xe890),
+            (3000, 32000, 0x8eb8),
+        ]
+
+        cpu = Cpu6502(test_memory_controller)
+        start = time.perf_counter()
+        total_clocks = 0
+        for subtraction in subtractions:
+            cpu.registers.pc = 0x0600
+            test_memory_controller.interrupted = False
+
+            test_memory_controller.buffer[0x20] = subtraction[0] & 0xff
+            test_memory_controller.buffer[0x21] = (subtraction[0] >> 8) & 0xff
+
+            test_memory_controller.buffer[0x22] = subtraction[1] & 0xff
+            test_memory_controller.buffer[0x23] = (subtraction[1] >> 8) & 0xff
+
+            total_clocks += cpu.run_until_signalled(test_memory_controller.is_signalled)
+
+            result = test_memory_controller.read(0x24) + (test_memory_controller.read(0x25) * 256)
+            print("{0} - {1} = {2}".format(test_memory_controller.read(0x20) + (test_memory_controller.read(0x21) * 256),
+                    test_memory_controller.read(0x22) + (test_memory_controller.read(0x23) * 256),
+                    result))
+
+            self.assertEqual(result, subtraction[2])
+
+        print("Clocks:{0}".format(total_clocks))
+        print("Time:{0}".format(time.perf_counter() - start))
+
 if __name__ == '__main__':
     unittest.main()
