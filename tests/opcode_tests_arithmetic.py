@@ -294,11 +294,15 @@ class OpCodeTestsArithmetic(unittest.TestCase):
             self.assertFalse(registers.negative_flag)
             self.assertFalse(registers.carry_flag)
 
-    def execute_sbc_borrow_in_borrow_out_no_overflow_positive_result(self, actual_opcode, expected_clocks, mock_memory_controller):
+    def execute_sbc_borrow_in_borrow_out_no_overflow_positive_result(self, actual_opcode, expected_clocks, mock_memory_controller, **kwargs):
 
         opcode = OpCode()
         registers = Registers()
-        registers.accumulator = 0x50
+        setattr(registers,'accumulator',0x50)
+
+        if kwargs:
+            for arg in kwargs:
+                setattr(registers, arg, kwargs[arg])
 
         # Mocking 0x150 - 0xf0 (borrow 'in')
         registers.pc += 1 #need to fake the cpu reading the opcode
@@ -318,6 +322,24 @@ class OpCodeTestsArithmetic(unittest.TestCase):
         self.execute_sbc_borrow_in_borrow_out_no_overflow_positive_result(0xE9, 2, mock_memory_controller)
         self.assertEqual(mock_memory_controller.read.call_count, 1)
 
+    def test_execute_sbc_zeropage_borrow_in_borrow_out_no_overflow_positive_result(self):
+
+        mock_memory_controller = Mock()
+        # we're mocking 0xE5 0x20 and [0x20] = 0xf0
+        mock_memory_controller.read.side_effect = [0x20, 0xf0]
+
+        self.execute_sbc_borrow_in_borrow_out_no_overflow_positive_result(0xE5, 3, mock_memory_controller)
+        self.assertEqual(mock_memory_controller.read.call_count, 2)
+
+    def test_execute_sbc_zeropageX_borrow_in_borrow_out_no_overflow_positive_result(self):
+
+        mock_memory_controller = Mock()
+        # we're mocking 0xF5 0x20 and [0x20] = 0xf0
+        mock_memory_controller.read.side_effect = [0x20, 0xf0]
+
+        self.execute_sbc_borrow_in_borrow_out_no_overflow_positive_result(0xF5, 4, mock_memory_controller, x_index = 3)
+        self.assertEqual(mock_memory_controller.read.call_count, 2)
+
     def test_execute_sbc_absolute_borrow_in_borrow_out_no_overflow_positive_result(self):
 
         mock_memory_controller = Mock()
@@ -326,6 +348,69 @@ class OpCodeTestsArithmetic(unittest.TestCase):
 
         self.execute_sbc_borrow_in_borrow_out_no_overflow_positive_result(0xED, 4, mock_memory_controller)
         self.assertEqual(mock_memory_controller.read.call_count, 3)
+
+    def test_execute_sbc_absoluteX_borrow_in_borrow_out_no_overflow_positive_result(self):
+
+        mock_memory_controller = Mock()
+        # we're mocking 0xFD 0x00 0x20 and [0x2003] = 0xf0
+        mock_memory_controller.read.side_effect = [0x00, 0x20, 0xf0]
+
+        self.execute_sbc_borrow_in_borrow_out_no_overflow_positive_result(0xFD, 4, mock_memory_controller, x_index = 3)
+        self.assertEqual(mock_memory_controller.read.call_count, 3)
+
+    def test_execute_sbc_absoluteX_borrow_in_borrow_out_no_overflow_positive_result_extra_cycle(self):
+
+        mock_memory_controller = Mock()
+        # we're mocking 0xFD 0xfe 0x20 and [0x2101] = 0xf0
+        mock_memory_controller.read.side_effect = [0xfe, 0x20, 0xf0]
+
+        self.execute_sbc_borrow_in_borrow_out_no_overflow_positive_result(0xFD, 5, mock_memory_controller, x_index = 3)
+        self.assertEqual(mock_memory_controller.read.call_count, 3)
+
+    def test_execute_sbc_absoluteY_borrow_in_borrow_out_no_overflow_positive_result(self):
+
+        mock_memory_controller = Mock()
+        # we're mocking 0xF9 0x00 0x20 and [0x2003] = 0xf0
+        mock_memory_controller.read.side_effect = [0x00, 0x20, 0xf0]
+
+        self.execute_sbc_borrow_in_borrow_out_no_overflow_positive_result(0xF9, 4, mock_memory_controller, y_index = 3)
+        self.assertEqual(mock_memory_controller.read.call_count, 3)
+
+    def test_execute_sbc_absoluteY_borrow_in_borrow_out_no_overflow_positive_result_extra_cycle(self):
+
+        mock_memory_controller = Mock()
+        # we're mocking 0xF9 0xfe 0x20 and [0x2101] = 0xf0
+        mock_memory_controller.read.side_effect = [0xfe, 0x20, 0xf0]
+
+        self.execute_sbc_borrow_in_borrow_out_no_overflow_positive_result(0xF9, 5, mock_memory_controller, y_index = 3)
+        self.assertEqual(mock_memory_controller.read.call_count, 3)
+
+    def test_execute_sbc_indirectX_borrow_in_borrow_out_no_overflow_positive_result(self):
+
+        mock_memory_controller = Mock()
+        # we're mocking 0xE1 0x20 and [0x23] = 0x1234 [0x1234] = 0xf0
+        mock_memory_controller.read.side_effect = [0x20, 0x34, 0x12, 0xf0]
+
+        self.execute_sbc_borrow_in_borrow_out_no_overflow_positive_result(0xE1, 6, mock_memory_controller, x_index = 3)
+        self.assertEqual(mock_memory_controller.read.call_count, 4)
+
+    def test_execute_sbc_indirectY_borrow_in_borrow_out_no_overflow_positive_result(self):
+
+        mock_memory_controller = Mock()
+        # we're mocking 0xF1 0x20 and [0x20] = 0x1234 [0x1237] = 0xf0
+        mock_memory_controller.read.side_effect = [0x44, 0x34, 0x12, 0xf0]
+
+        self.execute_sbc_borrow_in_borrow_out_no_overflow_positive_result(0xF1, 5, mock_memory_controller, y_index = 3)
+        self.assertEqual(mock_memory_controller.read.call_count, 4)
+
+    def test_execute_sbc_indirectY_borrow_in_borrow_out_no_overflow_positive_result_extra_cycle(self):
+
+        mock_memory_controller = Mock()
+        # we're mocking 0xF1 0x20 and [0x20] = 0x1234 [0x1301] = 0xf0
+        mock_memory_controller.read.side_effect = [0x44, 0xfe, 0x12, 0xf0]
+
+        self.execute_sbc_borrow_in_borrow_out_no_overflow_positive_result(0xF1, 6, mock_memory_controller, y_index = 3)
+        self.assertEqual(mock_memory_controller.read.call_count, 4)
 
     def test_execute_sbc_immediate_no_borrow_in_borrow_out_overflow_negative_result(self):
 

@@ -222,7 +222,10 @@ def sbc(registers, operand, memory_controller):
     registers.overflow_flag = resultsign_differs and signbits_differ
     registers.carry_flag = (result >= 0)
     registers.accumulator = result & 0xff
-    registers.set_NZ(registers.accumulator) 
+    registers.set_NZ(registers.accumulator)
+
+def sbcM(registers, operand, memory_controller):
+    sbc(registers, memory_controller.read(operand), memory_controller)
 
 #################################################################################
 # BIT SHIFTS
@@ -305,8 +308,8 @@ class OpCode(object):
         ["bcs", "ldaa", "nop", "lax", "ldy", "lda", "ldx", "lax", "clv", "ldaa", "tsx", "lax", "ldya", "ldaa", "ldxa", "lax"],  # B
         ["cpy", "cmp", "nop", "dcp", "cpy", "cmp", "dec", "dcp", "iny", "cmp", "dex", "nop", "cpy", "cmp", "dec", "dcp"],  # C
         ["bne", "cmp", "nop", "dcp", "nop", "cmp", "dec", "dcp", "cld", "cmp", "nop", "dcp", "nop", "cmp", "dec", "dcp"],  # D
-        ["cpx", "sbc", "nop", "isb", "cpx", "sbc", "inc", "isb", "inx", "sbc", "nop", "sbc", "cpx", "sbc", "inc", "isb"],  # E
-        ["beq", "sbc", "nop", "isb", "nop", "sbc", "inc", "isb", "sed", "sbc", "nop", "isb", "nop", "sbc", "inc", "isb"]]  # F
+        ["cpx", "sbcM", "nop", "isb", "cpx", "sbc", "inc", "isb", "inx", "sbc", "nop", "sbc", "cpx", "sbc", "inc", "isb"],  # E
+        ["beq", "sbcM", "nop", "isb", "nop", "sbc", "inc", "isb", "sed", "sbcM", "nop", "isb", "nop", "sbcM", "inc", "isb"]]  # F
 
     cycle_counts = [
         #|  0  |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  |  A  |  B  |  C  |  D  |  E  |  F  |
@@ -379,6 +382,7 @@ class OpCode(object):
         "rolA": rolA,
         "rolM": rolM,
         "sbc": sbc,
+        "sbcM": sbcM,
         "inc": inc,
         "dec": dec,
         "jmp": jmp
