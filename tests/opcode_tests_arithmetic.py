@@ -334,7 +334,7 @@ class OpCodeTestsArithmetic(unittest.TestCase):
     def test_execute_sbc_zeropageX_borrow_in_borrow_out_no_overflow_positive_result(self):
 
         mock_memory_controller = Mock()
-        # we're mocking 0xF5 0x20 and [0x20] = 0xf0
+        # we're mocking 0xF5 0x20 and [0x23] = 0xf0
         mock_memory_controller.read.side_effect = [0x20, 0xf0]
 
         self.execute_sbc_borrow_in_borrow_out_no_overflow_positive_result(0xF5, 4, mock_memory_controller, x_index = 3)
