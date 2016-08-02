@@ -216,15 +216,14 @@ class cpu6502Tests(unittest.TestCase):
         cpu = Cpu6502(test_memory_controller)
         cpu.registers.pc = 0x0600
 
-        cpu.registers.accumulator = 10
-
         start = time.perf_counter()
         total_clocks = cpu.run_until_signalled(test_memory_controller.is_signalled)
         print("Clocks:{0}".format(total_clocks))
         print("Time:{0}".format(time.perf_counter() - start))
 
+        expected_results = [1, 1, 2, 3, 5, 8, 13, 21, 34]
         for result in range(0, 9):
-            print("F({0}) = {1}".format(result, test_memory_controller.read(0xf1b + result)))
+            self.assertEqual(test_memory_controller.read(0xf1b + result), expected_results[result])
 
     #############################################
 
@@ -233,14 +232,14 @@ class cpu6502Tests(unittest.TestCase):
                             0x0E, 0x5A, 0x00, 0x2E, 0x5B, 0x00, 0x2E, 0x5C, 0x00, 0x2E,
                             0x5D, 0x00, 0xAD, 0x5C, 0x00, 0x38, 0xED, 0x58, 0x00, 0xA8,
                             0xAD, 0x5D, 0x00, 0xED, 0x59, 0x00, 0x90, 0x09, 0x8D, 0x5D,
-                            0x00, 0x8C, 0x5C, 0x00, 0xEE, 0x5E, 0x00, 0xCA, 0xD0, 0xD8, 0x00 ] 
+                            0x00, 0x8C, 0x5C, 0x00, 0xEE, 0x5A, 0x00, 0xCA, 0xD0, 0xD8, 0x00 ] 
 
     # code is
 
     # divisor = $58     ;$59 used for hi-byte
     # dividend = $5a    ;$5b used for hi-byte
     # remainder = $5c   ;$5d used for hi-byte
-    # result = $5e      ;$5e to store the result
+    # result = $5a      ;$5e to store the result
     # 
     # divide:  lda #0          ;preset remainder to 0
     #          sta remainder
@@ -273,24 +272,40 @@ class cpu6502Tests(unittest.TestCase):
         for byte in range(len(self.divide_instructions)):
             test_memory_controller.buffer[0x600+byte] = self.divide_instructions[byte]
 
+        divisions = [
+            (32, 8, 4, 0),
+            (100, 5, 20, 0),
+            (5000, 100, 50, 0),
+            (15000, 125, 120, 0),
+            (21000, 126, 166, 84)
+        ]
+
         cpu = Cpu6502(test_memory_controller)
-        cpu.registers.pc = 0x0600
-
-        cpu.registers.accumulator = 10
-
-        test_memory_controller.buffer[0x58] = 8
-        test_memory_controller.buffer[0x59] = 0
-
-        test_memory_controller.buffer[0x5a] = 32
-        test_memory_controller.buffer[0x5b] = 0
-
         start = time.perf_counter()
-        total_clocks = cpu.run_until_signalled(test_memory_controller.is_signalled)
+        total_clocks = 0
+        for division in divisions:
+            cpu.registers.pc = 0x0600
+            test_memory_controller.interrupted = False
+
+            dividend = division[0]
+            test_memory_controller.buffer[0x5a] = dividend & 0xff
+            test_memory_controller.buffer[0x5b] = (dividend >> 8) & 0xff
+
+            divisor = division[1]
+            test_memory_controller.buffer[0x58] = divisor & 0xff
+            test_memory_controller.buffer[0x59] = (divisor >> 8) & 0xff
+
+            total_clocks += cpu.run_until_signalled(test_memory_controller.is_signalled)
+
+            result = test_memory_controller.read(0x5a)
+            remainder = test_memory_controller.read(0x5c) + (test_memory_controller.read(0x5d) * 256)
+            print("{0} / {1} = {2} remainder {3}".format(dividend, divisor, result, remainder))
+
+            self.assertEqual(result, division[2])
+            self.assertEqual(remainder, division[3])
+
         print("Clocks:{0}".format(total_clocks))
         print("Time:{0}".format(time.perf_counter() - start))
-
-        print("32 / 8 = {0} remainder {1}".format(test_memory_controller.read(0x5e) + (test_memory_controller.read(0x5f) * 256),
-                test_memory_controller.read(0x5c) + (test_memory_controller.read(0x5d) * 256)))
 
     #############################################
 

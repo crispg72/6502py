@@ -204,8 +204,6 @@ def sed(registers, operand, memory_controller):
 # ARITHMETIC
 
 def adc(registers, operand, memory_controller):
-    #print("a:{0} o:{1} c:{2}".format(registers.accumulator, operand, registers.carry_flag))
-
     result = registers.accumulator + (operand + (1 if registers.carry_flag else 0))
 
     registers.set_NZV(operand, result & 0xff) 
@@ -216,16 +214,13 @@ def adcM(registers, operand, memory_controller):
     adc(registers, memory_controller.read(operand), memory_controller)
 
 def sbc(registers, operand, memory_controller):
-    #print("a:{0} o:{1} c:{2}".format(registers.accumulator, operand, registers.carry_flag))
-    #result = registers.accumulator + (registers.carry_flag * 256) - operand
     result = registers.accumulator - (1 if not registers.carry_flag else 0) - operand
 
     signbits_differ = (operand ^ registers.accumulator) & 0x80
     resultsign_differs = (registers.accumulator ^ result) & 0x80
 
     registers.overflow_flag = resultsign_differs and signbits_differ
-    #registers.carry_flag = (result > 255)
-    registers.carry_flag = registers.accumulator >= operand
+    registers.carry_flag = (result >= 0)
     registers.accumulator = result & 0xff
     registers.set_NZ(registers.accumulator) 
 
