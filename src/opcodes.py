@@ -228,6 +228,16 @@ def sbcM(registers, operand, memory_controller):
     sbc(registers, memory_controller.read(operand), memory_controller)
 
 #################################################################################
+# LOGICAL
+
+def logical_and(registers, operand, memory_controller):
+    registers.accumulator = registers.accumulator & operand
+    registers.set_NZ(registers.accumulator)
+
+def logical_andM(registers, operand, memory_controller):
+    logical_and(registers, memory_controller.read(operand), memory_controller)
+
+#################################################################################
 # BIT SHIFTS
 
 def asl(registers, operand):
@@ -296,8 +306,8 @@ class OpCode(object):
         #|  0 |  1   |  2   |  3   |  4   |  5   |  6   |  7   |  8   |  9   |  A   |  B   |  C   |  D   |  E   |  F   |
         ["brk", "ora", "nop", "slo", "nop", "ora", "aslM", "slo", "php", "ora", "aslA", "nop", "nop", "ora", "aslM", "slo"],  # 0
         ["bpl", "ora", "nop", "slo", "nop", "ora", "aslM", "slo", "clc", "ora", "nop", "slo", "nop", "ora", "aslM", "slo"],  # 1
-        ["jsr", "and", "nop", "rla", "bit", "and", "rolM", "rla", "plp", "and", "rolA", "nop", "bit", "and", "rolM", "rla"],  # 2
-        ["bmi", "and", "nop", "rla", "nop", "and", "rol", "rla", "sec", "and", "nop", "rla", "nop", "and", "rol", "rla"],  # 3
+        ["jsr", "andM", "nop", "rla", "bit", "and", "rolM", "rla", "plp", "and", "rolA", "nop", "bit", "and", "rolM", "rla"],  # 2
+        ["bmi", "andM", "nop", "rla", "nop", "and", "rol", "rla", "sec", "andM", "nop", "rla", "nop", "andM", "rol", "rla"],  # 3
         ["rti", "eor", "nop", "sre", "nop", "eor", "lsr", "sre", "pha", "eor", "lsr", "nop", "jmp", "eor", "lsr", "sre"],  # 4
         ["bvc", "eor", "nop", "sre", "nop", "eor", "lsr", "sre", "cli", "eor", "nop", "sre", "nop", "eor", "lsr", "sre"],  # 5
         ["rts", "adcM", "nop", "rra", "nop", "adc", "ror", "rra", "pla", "adc", "ror", "nop", "jmp", "adc", "ror", "rra"],  # 6
@@ -385,6 +395,8 @@ class OpCode(object):
         "sbcM": sbcM,
         "inc": inc,
         "dec": dec,
+        "and": logical_and,
+        "andM": logical_andM,
         "jmp": jmp
     }
 
