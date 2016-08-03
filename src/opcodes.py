@@ -237,6 +237,20 @@ def logical_and(registers, operand, memory_controller):
 def logical_andM(registers, operand, memory_controller):
     logical_and(registers, memory_controller.read(operand), memory_controller)
 
+def logical_eor(registers, operand, memory_controller):
+    registers.accumulator = registers.accumulator ^ operand
+    registers.set_NZ(registers.accumulator)
+
+def logical_eorM(registers, operand, memory_controller):
+    logical_eor(registers, memory_controller.read(operand), memory_controller)
+
+def logical_or(registers, operand, memory_controller):
+    registers.accumulator = registers.accumulator | operand
+    registers.set_NZ(registers.accumulator)
+
+def logical_orM(registers, operand, memory_controller):
+    logical_or(registers, memory_controller.read(operand), memory_controller)
+
 #################################################################################
 # BIT SHIFTS
 
@@ -304,12 +318,12 @@ class OpCode(object):
 
     opcode_table = [
         #|  0 |  1   |  2   |  3   |  4   |  5   |  6   |  7   |  8   |  9   |  A   |  B   |  C   |  D   |  E   |  F   |
-        ["brk", "ora", "nop", "slo", "nop", "ora", "aslM", "slo", "php", "ora", "aslA", "nop", "nop", "ora", "aslM", "slo"],  # 0
-        ["bpl", "ora", "nop", "slo", "nop", "ora", "aslM", "slo", "clc", "ora", "nop", "slo", "nop", "ora", "aslM", "slo"],  # 1
+        ["brk", "oraM", "nop", "slo", "nop", "ora", "aslM", "slo", "php", "ora", "aslA", "nop", "nop", "ora", "aslM", "slo"],  # 0
+        ["bpl", "oraM", "nop", "slo", "nop", "ora", "aslM", "slo", "clc", "oraM", "nop", "slo", "nop", "oraM", "aslM", "slo"],  # 1
         ["jsr", "andM", "nop", "rla", "bit", "and", "rolM", "rla", "plp", "and", "rolA", "nop", "bit", "and", "rolM", "rla"],  # 2
         ["bmi", "andM", "nop", "rla", "nop", "and", "rol", "rla", "sec", "andM", "nop", "rla", "nop", "andM", "rol", "rla"],  # 3
-        ["rti", "eor", "nop", "sre", "nop", "eor", "lsr", "sre", "pha", "eor", "lsr", "nop", "jmp", "eor", "lsr", "sre"],  # 4
-        ["bvc", "eor", "nop", "sre", "nop", "eor", "lsr", "sre", "cli", "eor", "nop", "sre", "nop", "eor", "lsr", "sre"],  # 5
+        ["rti", "eorM", "nop", "sre", "nop", "eor", "lsr", "sre", "pha", "eor", "lsr", "nop", "jmp", "eor", "lsr", "sre"],  # 4
+        ["bvc", "eorM", "nop", "sre", "nop", "eor", "lsr", "sre", "cli", "eorM", "nop", "sre", "nop", "eorM", "lsr", "sre"],  # 5
         ["rts", "adcM", "nop", "rra", "nop", "adc", "ror", "rra", "pla", "adc", "ror", "nop", "jmp", "adc", "ror", "rra"],  # 6
         ["bvs", "adcM", "nop", "rra", "nop", "adc", "ror", "rra", "sei", "adcM", "nop", "rra", "nop", "adcM", "ror", "rra"],  # 7
         ["nop", "sta", "nop", "sax", "sty", "sta", "stx", "sax", "dey", "nop", "txa", "nop", "sty", "sta", "stx", "sax"],  # 8
@@ -397,6 +411,10 @@ class OpCode(object):
         "dec": dec,
         "and": logical_and,
         "andM": logical_andM,
+        "eor": logical_eor,
+        "eorM": logical_eorM,
+        "ora": logical_or,
+        "oraM": logical_orM,
         "jmp": jmp
     }
 
