@@ -2,7 +2,11 @@
   python:
     - 3.6
     - nightly
+  before_install:
+    - pip install pytest pytest-cov codecov
   install:
     - python setup.py -q install
   script:
-    - pytest
+    - pytest -v --cov emupy6502
+  after_success:
+    - codecov
