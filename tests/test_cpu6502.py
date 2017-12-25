@@ -7,19 +7,19 @@ from emupy6502.memory_controller import MemoryController
 from emupy6502.registers import Registers
 
 
-class TestMemoryController(MemoryController):
+class MemoryControllerForTesting(MemoryController):
 
     def __init__(self):
 
         self.interrupted = False
-        super(TestMemoryController, self).__init__(65536)
+        super(MemoryControllerForTesting, self).__init__(65536)
 
     def read(self, address):
         #print("read:{0}".format(address))
         if address == 0xfffe:
             self.interrupted = True
 
-        return super(TestMemoryController, self).read(address)
+        return super(MemoryControllerForTesting, self).read(address)
 
     def is_signalled(self):
         return self.interrupted
@@ -42,7 +42,7 @@ class cpu6502Tests(unittest.TestCase):
 
     def test_execute_mult10_function_10x10(self):
 
-        test_memory_controller = TestMemoryController()
+        test_memory_controller = MemoryControllerForTesting()
         for byte in range(len(self.mult10_instructions)):
             test_memory_controller.buffer[0x600+byte] = self.mult10_instructions[byte]
 
@@ -60,7 +60,7 @@ class cpu6502Tests(unittest.TestCase):
 
     def test_execute_mult10_function_10xminus10(self):
 
-        test_memory_controller = TestMemoryController()
+        test_memory_controller = MemoryControllerForTesting()
         for byte in range(len(self.mult10_instructions)):
             test_memory_controller.buffer[0x600+byte] = self.mult10_instructions[byte]
 
@@ -162,7 +162,7 @@ class cpu6502Tests(unittest.TestCase):
 
     def test_execute_sqrt_function_1(self):
 
-        test_memory_controller = TestMemoryController()
+        test_memory_controller = MemoryControllerForTesting()
         for byte in range(len(self.sqrt_instructions)):
             test_memory_controller.buffer[0x600+byte] = self.sqrt_instructions[byte]
 
@@ -209,7 +209,7 @@ class cpu6502Tests(unittest.TestCase):
 
     def test_execute_fibonacci_function_1(self):
 
-        test_memory_controller = TestMemoryController()
+        test_memory_controller = MemoryControllerForTesting()
         for byte in range(len(self.fibonacci_instructions)):
             test_memory_controller.buffer[0x600+byte] = self.fibonacci_instructions[byte]
 
@@ -268,7 +268,7 @@ class cpu6502Tests(unittest.TestCase):
     
     def test_execute_16bit_divide_function_1(self):
 
-        test_memory_controller = TestMemoryController()
+        test_memory_controller = MemoryControllerForTesting()
         for byte in range(len(self.divide_instructions)):
             test_memory_controller.buffer[0x600+byte] = self.divide_instructions[byte]
 
@@ -326,7 +326,7 @@ class cpu6502Tests(unittest.TestCase):
     
     def test_execute_16bit_subtract_function(self):
 
-        test_memory_controller = TestMemoryController()
+        test_memory_controller = MemoryControllerForTesting()
         for byte in range(len(self.subtract_16bit_instructions)):
             test_memory_controller.buffer[0x600+byte] = self.subtract_16bit_instructions[byte]
 
