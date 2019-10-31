@@ -1,4 +1,5 @@
 import unittest
+import pytest
 
 from unittest.mock import patch, Mock
 from emupy6502.memory_controller import MemoryController
@@ -6,13 +7,22 @@ from emupy6502.registers import Registers
 from emupy6502.opcodes import OpCode
 
 
-def test_execute_cmp_immediate_lessthan():
+@pytest.fixture
+def registers():
+    return Registers()
 
-    opcode = OpCode()
+@pytest.fixture
+def opcode():
+    return OpCode()
+
+@pytest.fixture
+def mock_memory_controller():
+    return Mock()
+
+def test_execute_cmp_immediate_lessthan(opcode, registers, mock_memory_controller):
+
     registers = Registers()
     registers.accumulator = 3
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x21]
 
     # we're mocking 0xC9 0x21 
@@ -26,13 +36,9 @@ def test_execute_cmp_immediate_lessthan():
     assert registers.carry_flag == False
     assert registers.negative_flag
 
-def test_execute_cmp_immediate_greaterthan():
+def test_execute_cmp_immediate_greaterthan(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.accumulator = 4
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x3]
 
     # we're mocking 0xC9 0x21 
@@ -46,13 +52,9 @@ def test_execute_cmp_immediate_greaterthan():
     assert registers.carry_flag
     assert registers.negative_flag == False
 
-def test_execute_cmp_immediate_equalto():
+def test_execute_cmp_immediate_equalto(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.accumulator = 4
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x4]
 
     # we're mocking 0xC9 0x21 
@@ -66,13 +68,9 @@ def test_execute_cmp_immediate_equalto():
     assert registers.carry_flag
     assert registers.negative_flag == False
 
-def test_execute_cpx_immediate_lessthan():
+def test_execute_cpx_immediate_lessthan(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.x_index = 3
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x21]
 
     # we're mocking 0xE0 0x21 
@@ -86,13 +84,9 @@ def test_execute_cpx_immediate_lessthan():
     assert registers.carry_flag == False
     assert registers.negative_flag
 
-def test_execute_cpx_immediate_greaterthan():
+def test_execute_cpx_immediate_greaterthan(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.x_index = 4
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x3]
 
     # we're mocking 0xE0 0x03 
@@ -106,13 +100,9 @@ def test_execute_cpx_immediate_greaterthan():
     assert registers.carry_flag
     assert registers.negative_flag == False
 
-def test_execute_cpx_immediate_equalto():
+def test_execute_cpx_immediate_equalto(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.x_index = 4
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x4]
 
     # we're mocking 0xE0 0x04 
@@ -126,13 +116,9 @@ def test_execute_cpx_immediate_equalto():
     assert registers.carry_flag
     assert registers.negative_flag == False
 
-def test_execute_cpy_immediate_lessthan():
+def test_execute_cpy_immediate_lessthan(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.y_index = 3
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x21]
 
     # we're mocking 0xC0 0x21 
@@ -146,13 +132,9 @@ def test_execute_cpy_immediate_lessthan():
     assert registers.carry_flag == False
     assert registers.negative_flag
 
-def test_execute_cpy_immediate_greaterthan():
+def test_execute_cpy_immediate_greaterthan(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.y_index = 4
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x3]
 
     # we're mocking 0xE0 0x03 
@@ -166,13 +148,9 @@ def test_execute_cpy_immediate_greaterthan():
     assert registers.carry_flag
     assert registers.negative_flag == False
 
-def test_execute_cpy_immediate_equalto():
+def test_execute_cpy_immediate_equalto(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.y_index = 4
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x4]
 
     # we're mocking 0xE0 0x04 
@@ -186,13 +164,9 @@ def test_execute_cpy_immediate_equalto():
     assert registers.carry_flag
     assert registers.negative_flag == False
 
-def test_execute_cmp_zeropage_lessthan():
+def test_execute_cmp_zeropage_lessthan(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.accumulator = 3
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x21, 6]
 
     # we're mocking 0xC5 0x21 and [0x21] = 6
@@ -207,13 +181,9 @@ def test_execute_cmp_zeropage_lessthan():
     assert registers.carry_flag == False
     assert registers.negative_flag
 
-def test_execute_cmp_zeropage_greaterthan():
+def test_execute_cmp_zeropage_greaterthan(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.accumulator = 4
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x21, 0x3]
 
     # we're mocking 0xC5 0x21 and [0x21] = 3
@@ -228,13 +198,9 @@ def test_execute_cmp_zeropage_greaterthan():
     assert registers.carry_flag
     assert registers.negative_flag == False
 
-def test_execute_cmp_zeropage_equalto():
+def test_execute_cmp_zeropage_equalto(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.accumulator = 4
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x21, 0x4]
 
     # we're mocking 0xC5 0x21 
@@ -249,13 +215,9 @@ def test_execute_cmp_zeropage_equalto():
     assert registers.carry_flag
     assert registers.negative_flag == False
 
-def test_execute_cpx_zeropage_lessthan():
+def test_execute_cpx_zeropage_lessthan(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.x_index = 3
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x21, 6]
 
     # we're mocking 0xE4 0x21 and [0x21] = 6
@@ -270,13 +232,9 @@ def test_execute_cpx_zeropage_lessthan():
     assert registers.carry_flag == False
     assert registers.negative_flag
 
-def test_execute_cpx_zeropage_greaterthan():
+def test_execute_cpx_zeropage_greaterthan(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.x_index = 4
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x21, 0x3]
 
     # we're mocking 0xE4 0x21 and [0x21] = 3
@@ -291,13 +249,9 @@ def test_execute_cpx_zeropage_greaterthan():
     assert registers.carry_flag
     assert registers.negative_flag == False
 
-def test_execute_cpx_zeropage_equalto():
+def test_execute_cpx_zeropage_equalto(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.x_index = 4
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x21, 0x4]
 
     # we're mocking 0xE4 0x21 
@@ -312,13 +266,9 @@ def test_execute_cpx_zeropage_equalto():
     assert registers.carry_flag
     assert registers.negative_flag == False
 
-def test_execute_cpy_zeropage_lessthan():
+def test_execute_cpy_zeropage_lessthan(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.y_index = 3
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x21, 6]
 
     # we're mocking 0xC4 0x21 and [0x21] = 6
@@ -333,13 +283,9 @@ def test_execute_cpy_zeropage_lessthan():
     assert registers.carry_flag == False
     assert registers.negative_flag
 
-def test_execute_cpy_zeropage_greaterthan():
+def test_execute_cpy_zeropage_greaterthan(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.y_index = 4
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x21, 0x3]
 
     # we're mocking 0xC4 0x21 and [0x21] = 3
@@ -354,13 +300,9 @@ def test_execute_cpy_zeropage_greaterthan():
     assert registers.carry_flag
     assert registers.negative_flag == False
 
-def test_execute_cpy_zeropage_equalto():
+def test_execute_cpy_zeropage_equalto(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.y_index = 4
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x21, 0x4]
 
     # we're mocking 0xC4 0x21 
