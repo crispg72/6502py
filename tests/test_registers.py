@@ -1,62 +1,55 @@
-import unittest
-
 from unittest.mock import patch
 from emupy6502.memory_controller import MemoryController
 from emupy6502.registers import Registers
 from emupy6502.opcodes import OpCode
 
 
-class RegistersTests(unittest.TestCase):
-    
-    def test_set_NZ_non_zero_positive(self):
+def test_set_NZ_non_zero_positive():
 
-        registers = Registers()
-        registers.set_NZ(1)
-        self.assertFalse(registers.negative_flag)
-        self.assertFalse(registers.zero_flag)
+    registers = Registers()
+    registers.set_NZ(1)
+    assert registers.negative_flag == False
+    assert registers.zero_flag == False
 
-    def test_set_NZ_zero_positive(self):
+def test_set_NZ_zero_positive():
 
-        registers = Registers()
-        registers.set_NZ(0)
-        self.assertFalse(registers.negative_flag)
-        self.assertTrue(registers.zero_flag)
+    registers = Registers()
+    registers.set_NZ(0)
+    assert registers.negative_flag == False
+    assert registers.zero_flag
 
-    def test_set_NZ_non_zero_negative(self):
+def test_set_NZ_non_zero_negative():
 
-        registers = Registers()
-        registers.set_NZ(-3)
-        self.assertTrue(registers.negative_flag)
-        self.assertFalse(registers.zero_flag)
+    registers = Registers()
+    registers.set_NZ(-3)
+    assert registers.negative_flag
+    assert registers.zero_flag == False
 
-    def test_set_NZV_non_zero_negative_no_overflow(self):
+def test_set_NZV_non_zero_negative_no_overflow():
 
-        registers = Registers()
-        registers.accumulator = 4
-        registers.set_NZV(-3, 1)
-        self.assertFalse(registers.negative_flag)
-        self.assertFalse(registers.zero_flag)
-        self.assertFalse(registers.overflow_flag)
+    registers = Registers()
+    registers.accumulator = 4
+    registers.set_NZV(-3, 1)
+    assert registers.negative_flag == False
+    assert registers.zero_flag == False
+    assert registers.overflow_flag == False
 
-    def test_set_NZV_non_zero_not_negative_overflow(self):
+def test_set_NZV_non_zero_not_negative_overflow():
 
-        registers = Registers()
-        registers.accumulator = 0x80
-        # Here we act as if we have done -128 + -1
-        registers.set_NZV(0xff, 0x7f)
-        self.assertFalse(registers.negative_flag)
-        self.assertFalse(registers.zero_flag)
-        self.assertTrue(registers.overflow_flag)
+    registers = Registers()
+    registers.accumulator = 0x80
+    # Here we act as if we have done -128 + -1
+    registers.set_NZV(0xff, 0x7f)
+    assert registers.negative_flag == False
+    assert registers.zero_flag == False
+    assert registers.overflow_flag
 
-    def test_set_NZV_non_zero_negative_overflow(self):
+def test_set_NZV_non_zero_negative_overflow():
 
-        registers = Registers()
-        registers.accumulator = 0x7f
-        # Here we act as if we have done 127 + 1
-        registers.set_NZV(1, 0x80)
-        self.assertTrue(registers.negative_flag)
-        self.assertFalse(registers.zero_flag)
-        self.assertTrue(registers.overflow_flag)
-
-if __name__ == '__main__':
-    unittest.main()
+    registers = Registers()
+    registers.accumulator = 0x7f
+    # Here we act as if we have done 127 + 1
+    registers.set_NZV(1, 0x80)
+    assert registers.negative_flag
+    assert registers.zero_flag == False
+    assert registers.overflow_flag
