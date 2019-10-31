@@ -1,29 +1,24 @@
-import unittest
+import pytest
 from emupy6502.memory_controller import MemoryController
 
 
-class MemoryControllerTests(unittest.TestCase):
-    
-    def test_read_with_no_buffer_raises(self):
+def test_read_with_no_buffer_raises():
 
-        controller = MemoryController()
+    controller = MemoryController()
 
-        with self.assertRaises(TypeError):
-        	value = controller.read(0)
+    with pytest.raises(TypeError):
+        controller.read(0)
 
-    def test_write_with_no_buffer_raises(self):
+def test_write_with_no_buffer_raises():
 
-        controller = MemoryController()
+    controller = MemoryController()
 
-        with self.assertRaises(TypeError):
-        	controller.write(0, 0)
+    with pytest.raises(TypeError):
+        controller.write(0, 0)
 
-    def test_read_from_invalid_address_raises(self):
+def test_read_from_invalid_address_raises():
 
-        controller = MemoryController(10)
+    controller = MemoryController(10)
 
-        with self.assertRaises(IndexError):
-        	value = controller.read(11)
-
-if __name__ == '__main__':
-    unittest.main()
+    with pytest.raises(IndexError):
+        controller.read(11)
