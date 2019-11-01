@@ -1,4 +1,5 @@
 import unittest
+import pytest
 
 from unittest.mock import patch, Mock
 from emupy6502.memory_controller import MemoryController
@@ -6,13 +7,21 @@ from emupy6502.registers import Registers
 from emupy6502.opcodes import OpCode
 
 
-def test_execute_asl_accumulator_positive():
+@pytest.fixture
+def registers():
+    return Registers()
 
-    opcode = OpCode()
-    registers = Registers()
+@pytest.fixture
+def opcode():
+    return OpCode()
+
+@pytest.fixture
+def mock_memory_controller():
+    return Mock()
+
+def test_execute_asl_accumulator_positive(opcode, registers, mock_memory_controller):
+
     registers.accumulator = 3
-
-    mock_memory_controller = Mock()
 
     # we're mocking 0x0A 0x21 
     registers.pc += 1 #need to fake the cpu reading the opcode
@@ -25,13 +34,9 @@ def test_execute_asl_accumulator_positive():
     assert registers.carry_flag == False
     assert registers.negative_flag == False
 
-def test_execute_asl_accumulator_negative():
+def test_execute_asl_accumulator_negative(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.accumulator = -3
-
-    mock_memory_controller = Mock()
 
     # we're mocking 0x0A 0x21 
     registers.pc += 1 #need to fake the cpu reading the opcode
@@ -44,11 +49,7 @@ def test_execute_asl_accumulator_negative():
     assert registers.carry_flag
     assert registers.negative_flag
 
-def test_execute_asl_zeropage():
-
-    opcode = OpCode()
-    registers = Registers()
-    mock_memory_controller = Mock()
+def test_execute_asl_zeropage(opcode, registers, mock_memory_controller):
 
     # we're mocking 0x06 0x30
     mock_memory_controller.read.side_effect = [0x30, 0x20]
@@ -63,13 +64,9 @@ def test_execute_asl_zeropage():
     assert registers.carry_flag == False
     assert registers.negative_flag == False        
 
-def test_execute_asl_zeropage_x():
+def test_execute_asl_zeropage_x(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.x_index = 3
-
-    mock_memory_controller = Mock()
 
     # we're mocking 0x16 0x21 so store to [0x0024]
     mock_memory_controller.read.side_effect = [0x21, 0x10]
@@ -86,13 +83,9 @@ def test_execute_asl_zeropage_x():
     assert registers.carry_flag == False
     assert registers.negative_flag == False        
 
-def test_execute_asl_zeropage_x_wrap():
+def test_execute_asl_zeropage_x_wrap(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.x_index = 3
-
-    mock_memory_controller = Mock()
 
     # we're mocking 0x16 0x21 so store to [0x0024]
     mock_memory_controller.read.side_effect = [0xfe, 0xf0]
@@ -109,13 +102,9 @@ def test_execute_asl_zeropage_x_wrap():
     assert registers.carry_flag
     assert registers.negative_flag        
 
-def test_execute_asl_absolute():
+def test_execute_asl_absolute(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.accumulator = 0x20
-
-    mock_memory_controller = Mock()
 
     # we're mocking 0x0E 0x0 0x20 so store to [0x2000]
     mock_memory_controller.read.side_effect = [0, 0x20, 0x21]
@@ -132,13 +121,9 @@ def test_execute_asl_absolute():
     assert registers.carry_flag == False
     assert registers.negative_flag == False        
 
-def test_execute_asl_absolute_x():
+def test_execute_asl_absolute_x(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.x_index = 3
-
-    mock_memory_controller = Mock()
 
     # we're mocking 0x1E 0x2100 so write is to [0x2103]
     mock_memory_controller.read.side_effect = [0, 0x21, 0xfe]
@@ -154,13 +139,9 @@ def test_execute_asl_absolute_x():
     assert registers.carry_flag
     assert registers.negative_flag        
 
-def test_execute_rol_accumulator_carry_clear_sign_clear():
+def test_execute_rol_accumulator_carry_clear_sign_clear(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.accumulator = 3
-
-    mock_memory_controller = Mock()
 
     # we're mocking 0x2A
     registers.pc += 1 #need to fake the cpu reading the opcode
@@ -173,14 +154,10 @@ def test_execute_rol_accumulator_carry_clear_sign_clear():
     assert registers.carry_flag == False
     assert registers.negative_flag == False
 
-def test_execute_rol_accumulator_carry_set_sign_clear():
+def test_execute_rol_accumulator_carry_set_sign_clear(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.accumulator = 3
     registers.carry_flag = True
-
-    mock_memory_controller = Mock()
 
     # we're mocking 0x2A
     registers.pc += 1 #need to fake the cpu reading the opcode
@@ -193,13 +170,9 @@ def test_execute_rol_accumulator_carry_set_sign_clear():
     assert registers.carry_flag == False
     assert registers.negative_flag == False
 
-def test_execute_rol_accumulator_carry_clear_sign_set():
+def test_execute_rol_accumulator_carry_clear_sign_set(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.accumulator = 0xc0
-
-    mock_memory_controller = Mock()
 
     # we're mocking 0x2A
     registers.pc += 1 #need to fake the cpu reading the opcode
@@ -212,12 +185,8 @@ def test_execute_rol_accumulator_carry_clear_sign_set():
     assert registers.carry_flag
     assert registers.negative_flag
 
-def test_execute_rol_zeropage_carry_clear_sign_clear():
+def test_execute_rol_zeropage_carry_clear_sign_clear(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x30, 3]
 
     # we're mocking 0x26 0x30 and [0x30] = 3
@@ -231,13 +200,9 @@ def test_execute_rol_zeropage_carry_clear_sign_clear():
     assert registers.carry_flag == False
     assert registers.negative_flag == False
 
-def test_execute_rol_zeropage_carry_set_sign_clear():
+def test_execute_rol_zeropage_carry_set_sign_clear(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.carry_flag = True
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x30, 3]
 
     # we're mocking 0x26 0x30 and [0x30] = 3
@@ -251,13 +216,9 @@ def test_execute_rol_zeropage_carry_set_sign_clear():
     assert registers.carry_flag == False
     assert registers.negative_flag == False
 
-def test_execute_rol_zeropage_carry_clear_sign_set():
+def test_execute_rol_zeropage_carry_clear_sign_set(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.accumulator = 0xc0
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x30, 0xc0]
 
     # we're mocking 0x26 0x30 and [0x30] = 0xc0
@@ -270,12 +231,8 @@ def test_execute_rol_zeropage_carry_clear_sign_set():
     assert registers.carry_flag
     assert registers.negative_flag
 
-def test_execute_rol_absolute_carry_clear_sign_clear():
+def test_execute_rol_absolute_carry_clear_sign_clear(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x00, 0x30, 3]
 
     # we're mocking 0x2E 0x30 and [0x3000] = 3
@@ -289,13 +246,9 @@ def test_execute_rol_absolute_carry_clear_sign_clear():
     assert registers.carry_flag == False
     assert registers.negative_flag == False
 
-def test_execute_rol_absolute_carry_set_sign_clear():
+def test_execute_rol_absolute_carry_set_sign_clear(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.carry_flag = True
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x00, 0x30, 3]
 
     # we're mocking 0x2E 0x30 and [0x3000] = 3
@@ -309,13 +262,9 @@ def test_execute_rol_absolute_carry_set_sign_clear():
     assert registers.carry_flag == False
     assert registers.negative_flag == False
 
-def test_execute_rol_absolute_carry_clear_sign_set():
+def test_execute_rol_absolute_carry_clear_sign_set(opcode, registers, mock_memory_controller):
 
-    opcode = OpCode()
-    registers = Registers()
     registers.accumulator = 0xc0
-
-    mock_memory_controller = Mock()
     mock_memory_controller.read.side_effect = [0x00, 0x30, 0xc0]
 
     # we're mocking 0x2E 0x30 and [0x3000] = 3
